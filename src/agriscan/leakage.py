@@ -50,6 +50,27 @@ def prepare(feats: torch.Tensor, mean: torch.Tensor | None = None):
     return F.normalize(feats - mean, dim=1), mean
 
 
+def pick_threshold(sims, control_sims, bins: int = 40) -> dict:
+    """Choose a near-copy threshold from the data, by a rule fixed BEFORE seeing the numbers.
+
+    A: 99.9th percentile of best-match similarity to images of a DIFFERENT class. Those pairs
+       are known non-copies, so only 0.1% of them reach A.
+    B: the valley of the val->train similarity histogram above A, i.e. the dip between the
+       'no copy in train' mode and the 'has a copy' mode (B = A if there is no dip).
+    final = max(A, B). The caller still reports a sensitivity table around it.
+    """
+    sims, control_sims = np.asarray(sims), np.asarray(control_sims)
+    a = float(np.quantile(control_sims, 0.999))
+    b, s = a, sims[sims >= a]
+    if len(s) >= 200:
+        hist, edges = np.histogram(s, bins=bins, range=(a, 1.0))
+        smooth = np.convolve(hist, [0.25, 0.5, 0.25], mode="same")
+        peak_hi = bins // 2 + int(np.argmax(smooth[bins // 2:]))   # the 'has a copy' mode, upper half
+        valley = int(np.argmin(smooth[:peak_hi + 1]))
+        b = float((edges[valley] + edges[valley + 1]) / 2)
+    return {"A_other_class_p99.9": a, "B_histogram_valley": b, "final": max(a, b)}
+
+
 @torch.no_grad()
 def top1(q, ref, device, *, self_match=False, q_labels=None, ref_labels=None,
          other_label=False, chunk=2048):

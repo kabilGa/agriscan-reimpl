@@ -19,13 +19,25 @@ def set_seed(seed: int) -> None:
     torch.cuda.manual_seed_all(seed)
 
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
 def _git_commit() -> str:
+    """Commit of the CODE (not of the working directory); '+dirty' if uncommitted changes exist.
+
+    On Kaggle there is no .git, so fall back to BUNDLE_INFO.json written by make_kaggle_bundle.py.
+    """
     try:
-        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
-                             capture_output=True, text=True, timeout=5)
-        return out.stdout.strip() or "unknown"
-    except Exception:
-        return "unknown"
+        run = lambda *a: subprocess.run(["git", "-C", str(REPO_ROOT), *a], capture_output=True, text=True, timeout=10)  # noqa: E731
+        commit = run("rev-parse", "--short", "HEAD").stdout.strip()
+        if commit:
+            return commit + ("+dirty" if run("status", "--porcelain").stdout.strip() else "")
+    except Exception:  # noqa: BLE001
+        pass
+    info = REPO_ROOT / "BUNDLE_INFO.json"
+    if info.exists():
+        return json.loads(info.read_text()).get("commit", "unknown")
+    return "unknown"
 
 
 def env_info() -> dict:

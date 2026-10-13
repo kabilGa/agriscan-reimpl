@@ -19,6 +19,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest"]
+app = ["fastapi", "uvicorn", "python-multipart", "httpx"]
+detect = ["ultralytics"]  # AGPL-3.0; also pulls opencv for video I/O
 
 [tool.setuptools.packages.find]
 where = ["src"]

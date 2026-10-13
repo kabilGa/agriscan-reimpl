@@ -33,6 +33,25 @@ def find_splits(root: str | Path) -> dict[str, Path]:
     return found
 
 
+def find_dataset_root(base: str | Path = "/kaggle/input") -> Path:
+    """Return the first directory under `base` that holds train/ and valid/ class folders.
+
+    No dataset slug is hard-coded: the notebook may have other inputs attached (e.g. our code
+    bundle), so we try each top-level input and fail loudly if none is the plant dataset.
+    """
+    base = Path(base)
+    tried = []
+    for d in sorted(p for p in base.iterdir() if p.is_dir()) if base.is_dir() else []:
+        try:
+            find_splits(d)
+            return d
+        except FileNotFoundError:
+            tried.append(d.name)
+    raise FileNotFoundError(
+        f"No plant-disease dataset found under {base} (looked in: {tried or 'nothing, folder missing/empty'}). "
+        "In the notebook: Add Input -> 'New Plant Diseases Dataset', then re-run.")
+
+
 def list_images(split_dir: Path, split: str, root: Path) -> pd.DataFrame:
     """One row per image: absolute path, path relative to root, class label, split name."""
     rows = []

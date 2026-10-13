@@ -9,18 +9,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-from agriscan.data import find_splits, list_images
+from agriscan.data import find_dataset_root, find_splits, list_images
 from agriscan.utils import save_results, set_seed
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--root", required=True, help="dataset root, e.g. /kaggle/input/new-plant-diseases-dataset")
+ap.add_argument("--root", default="auto", help="dataset root, or 'auto' to search /kaggle/input")
 ap.add_argument("--out", default="artifacts/inspect")
 ap.add_argument("--results", default="results/step1_inspect.json")
 ap.add_argument("--seed", type=int, default=0)
 args = ap.parse_args()
 
 set_seed(args.seed)
-root = Path(args.root)
+root = find_dataset_root() if args.root == "auto" else Path(args.root)
+print("dataset root:", root)
 dirs = find_splits(root)
 print("Found:", {k: str(v) for k, v in dirs.items()})
 df = {s: list_images(d, s, root) for s, d in dirs.items()}
