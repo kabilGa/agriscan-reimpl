@@ -1,0 +1,4 @@
+# Lower bounds only: Kaggle/Colab already ship torch, and re-installing it wastes time.
+# Exact versions used in a run are recorded inside that run's results JSON.
+# More packages are added step by step (imagehash, ultralytics, fastapi, ...).
+-e .

@@ -1,0 +1,30 @@
+# --- Personal study files: local only, never public ---
+LEARNING_NOTES.md
+INTERVIEW_QA.md
+
+# --- Secrets ---
+kaggle.json
+.kaggle/
+.env
+*.key
+
+# --- Data and model weights (never commit) ---
+data/
+datasets/
+*.pt
+*.pth
+*.onnx
+*.ckpt
+*.safetensors
+*.weights
+*.h5
+*.keras
+artifacts/
+runs/
+
+# --- Python / tooling ---
+.venv/
+__pycache__/
+*.egg-info/
+.ipynb_checkpoints/
+.pytest_cache/
