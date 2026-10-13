@@ -20,7 +20,8 @@ class YoloDetector:
     """Thin wrapper around an Ultralytics YOLO model (AGPL-3.0). Weights are downloaded at run time."""
 
     def __init__(self, weights: str = "yolo11n.pt", conf: float = 0.25, classes=(COCO_POTTED_PLANT,), device=None):
-        from ultralytics import YOLO  # imported lazily: heavy, and only needed when a detector is used
+        from ultralytics import YOLO, settings  # imported lazily: heavy, and only needed when a detector is used
+        settings.update({"sync": False})  # Ultralytics sends anonymous usage analytics by default; switch that off
         self.model, self.conf, self.classes, self.device = YOLO(weights), conf, list(classes) if classes else None, device
 
     def __call__(self, image: Image.Image) -> list[Box]:

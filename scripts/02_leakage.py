@@ -78,8 +78,10 @@ for vname, f in variants.items():
     v_sim, v_idx = top1(f["valid"], f["train"], device)
     other, _ = top1(f["valid"], f["train"], device, q_labels=lab["valid"], ref_labels=lab["train"], other_label=True)
     thr = pick_threshold(v_sim, other)
-    ths = sorted(set(GRID + [round(thr["final"], 3)]))
-    m = {"derived_threshold": thr,
+    # Thresholds read off the distribution of known non-copies (best match to a different class).
+    qthr = {f"other_class_p{q * 100:g}": round(float(np.quantile(other, q)), 3) for q in (0.99, 0.999, 0.9999)}
+    ths = sorted(set(GRID + [round(thr["final"], 3)] + list(qthr.values())))
+    m = {"derived_threshold": thr, "control_quantile_thresholds": qthr,
          "valid_to_train": summarize(v_sim, ths),
          "valid_to_train_same_label_of_best_match": float((lab["train"][v_idx] == lab["valid"]).mean()),
          # Baseline: best match among OTHER classes (known non-copies).
@@ -90,7 +92,7 @@ for vname, f in variants.items():
         m["control_test_to_train"] = summarize(top1(f["test"], f["train"], device)[0], ths)  # un-augmented photos
     metrics[vname] = m
     gallery[vname] = (v_sim, v_idx)
-    print(f"\n===== {vname} features | derived threshold: {thr}")
+    print(f"\n===== {vname} features | derived threshold: {thr} | control quantile thresholds: {qthr}")
     for k, r in m.items():
         if isinstance(r, dict) and "n" in r:
             print(f"{k}: n={r['n']}\n  quantiles: { {a: round(b, 3) for a, b in r['quantiles'].items()} }"

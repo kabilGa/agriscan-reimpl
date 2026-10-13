@@ -2,6 +2,7 @@
 import datetime as dt
 import json
 import platform
+from importlib import metadata
 import random
 import subprocess
 from pathlib import Path
@@ -40,11 +41,23 @@ def _git_commit() -> str:
     return "unknown"
 
 
+def _pkg_version(name: str) -> str:
+    try:
+        return metadata.version(name)
+    except metadata.PackageNotFoundError:
+        return "not installed"
+
+
 def env_info() -> dict:
     cuda = torch.cuda.is_available()
     return {
         "python": platform.python_version(),
         "torch": torch.__version__,
+        "torchvision": _pkg_version("torchvision"),
+        "numpy": _pkg_version("numpy"),
+        "pillow": _pkg_version("pillow"),
+        "ultralytics": _pkg_version("ultralytics"),
+        "cuda": torch.version.cuda if cuda else None,
         "device": torch.cuda.get_device_name(0) if cuda else "cpu",
         "git_commit": _git_commit(),
     }

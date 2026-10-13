@@ -48,7 +48,10 @@ orig_sim, _ = top1(feats[orig_val], feats[~orig_val], device)   # val -> train b
 
 
 def attempt(t):
-    groups, n_cross = near_dup_groups(feats, y, t, device)
+    try:
+        groups, n_cross = near_dup_groups(feats, y, t, device)
+    except RuntimeError as e:  # too many near pairs: the threshold is far too low; treat as a failed attempt
+        return None, None, {"threshold": t, "ok": False, "reasons": [str(e)]}
     sizes = np.bincount(groups)
     is_val = group_split(y, groups, args.val_frac, args.seed)
     per_class = pd.Series(is_val).groupby(y).mean()
@@ -69,10 +72,12 @@ attempts = []
 for thr in candidates:  # stops at the first healthy split; otherwise ends on the last (strictest) attempt
     groups, is_val, info = attempt(thr)
     attempts.append(info)
-    print(f"attempt thr={thr:.4f}: ok={info['ok']} {info['reasons']} max_group={info['max_group']}")
+    print(f"attempt thr={thr:.4f}: ok={info['ok']} {info['reasons']} max_group={info.get('max_group')}")
     if info["ok"]:
         break
 healthy = attempts[-1]["ok"]
+if groups is None:
+    raise SystemExit("Every threshold produced too many near-duplicate pairs; cannot build a split (see attempts above).")
 if not healthy:  # keep going (an unattended run must not crash) but flag it loudly in the JSON
     print("WARNING: no threshold gave a healthy split; using the strictest attempt, flagged in the JSON")
 
@@ -81,7 +86,7 @@ clean_sim, clean_idx = top1(feats[is_val], feats[~is_val], device)
 same_label = y[~is_val][clean_idx] == y[is_val]
 frac_per_class = pd.Series(is_val).groupby(y).mean()
 
-sens = [attempt(t)[2] for t in sorted({round(max(thr - 0.05, 0.0), 4), round(min(thr + 0.03, 0.999), 4)} - {thr})]
+sens = [attempt(t)[2] for t in sorted({round(max(thr - 0.05, 0.0), 4), round(min(thr + 0.03, 0.999), 4)} - {thr})]  # may contain failed attempts
 source = "manual" if args.threshold != "auto" else ("derived" if thr == candidates[0] else "fallback_ladder")
 m = {"threshold": thr, "threshold_source": source, "split_is_healthy": healthy,
      "attempts": attempts, "sensitivity": sens, "n_images": int(len(y)),

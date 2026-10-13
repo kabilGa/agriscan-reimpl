@@ -15,8 +15,8 @@ A step moves to "ran on Kaggle" only when its results JSON exists in `results/`.
 | 2 | MobileNetV2: frozen head, then fine-tuning (original and clean split) | code written and tested on synthetic data |
 | 3 | EfficientNet-B3 (original and clean split), comparison | code written and tested on synthetic data |
 | 4 | Ablations: frozen vs fine-tuned, augmentation, image size, LR schedule | code written and tested on synthetic data |
-| 5 | YOLO stage (generic pretrained detector) and two-stage pipeline | code written and tested with a fake detector; see "Detector stage" |
-| 6 | FastAPI app (photo upload, frame endpoint, page) | code written; tested with a dummy model, no real weights |
+| 5 | YOLO stage (generic pretrained detector) and two-stage pipeline | code written; tested with a fake detector, and run locally with the real YOLO11n on a sample photo and toy data (plumbing only; not measured on the real dataset); see "Detector stage" |
+| 6 | FastAPI app (photo upload, frame endpoint, page) | code written; tested with TestClient and started locally with a dummy model (random weights, so its outputs mean nothing) |
 | 7 | Evaluation and limits from real results | not started (needs the Kaggle results) |
 | 8 | Final docs | not started (README results table needs real results) |
 | optional | background-only check, ResNet-50 baseline | code written and tested on synthetic data; YOLO fine-tuning: not planned (no box labels) |
