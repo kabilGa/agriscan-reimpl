@@ -7,7 +7,7 @@
 ## Credits
 
 The original AgriScan was a team project (April 2026) in which I was lead developer, built together with:
-**[TEAMMATE NAMES: to be filled in by Kabil]**.
+Yassine Laabidi, Wassim Ferchichi and Mohamed Fedi Thabet.
 The Arduino/Bluetooth robot hardware was built by the team and is **not** part of this repo.
 
 ## What this repo covers
@@ -39,6 +39,17 @@ python scripts/smoke_test.py  # 1 training step on random data, checks the insta
 
 Real training runs on a free Kaggle GPU: open `notebooks/kaggle_train.ipynb` in Kaggle (Internet on, GPU on); it clones this repo.
 No credentials are stored in this repo. Data, model weights and `kaggle.json` are git-ignored.
+
+### Step 1 (data, leakage, clean split), run on Kaggle
+
+```bash
+python scripts/01_inspect_data.py --root /kaggle/input/new-plant-diseases-dataset
+python scripts/02_leakage.py      --root /kaggle/input/new-plant-diseases-dataset
+python scripts/03_clean_split.py  --threshold 0.95   # threshold chosen after viewing the pair galleries
+python -m pytest -q tests          # logic tests on synthetic data (no downloads)
+```
+
+On Windows add `--workers 0` to `02_leakage.py`. Results land in `results/*.json`, the clean split in `splits/`.
 
 ## Limitations
 
