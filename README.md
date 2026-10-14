@@ -23,7 +23,7 @@ A step moves to "ran on Kaggle" only when its results JSON exists in `results/`.
 
 ## Credits
 
-The original AgriScan was a team project (April 2026) in which I was lead developer, built together with my teammates (their names will be added once they have agreed). The Arduino/Bluetooth robot hardware was built by the team and is **not** part of this repo.
+The original AgriScan was a team project (April 2026) in which I was lead developer, built together with my teammates Yassine Laabidi, Wassim Ferchichi and Mohamed Fedi Thabet (named here with their agreement). The Arduino/Bluetooth robot hardware was built by the team and is **not** part of this repo.
 
 ## What this repo covers
 
@@ -82,5 +82,5 @@ Without `AGRISCAN_MODEL` the server still starts: `/health` reports it and `/pre
 ## Licenses and third-party models
 
 - Ultralytics YOLO is licensed AGPL-3.0; the YOLO11n weights are from the official Ultralytics release (exact file hash and package version are recorded in `results/step5_yolo_eval.json` after a run).
-- Dataset: Kaggle "New Plant Diseases Dataset (Augmented)". *Licence: to be read from the dataset page and recorded here before any publication.*
+- **Dataset:** ["New Plant Diseases Dataset"](https://www.kaggle.com/datasets/vipoooool/new-plant-diseases-dataset) on Kaggle (owner: vipoooool). The Kaggle licence field reads "Data files © Original Authors" (as read from the page by the repo owner on 2026-10-14). **No open licence is granted, the data is not redistributed by this repo (no images are committed), the source is credited here, and the original authors' terms are unconfirmed.** The data is used only for the personal, non-commercial research and learning work in this repo. Details: [LICENSES.md](LICENSES.md).
 - torchvision ImageNet weights (MobileNetV2, EfficientNet-B3, ResNet-50) are downloaded at run time.

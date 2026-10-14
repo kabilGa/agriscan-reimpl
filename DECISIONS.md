@@ -16,7 +16,9 @@ Every choice, why, and the alternatives. Numbered by step.
 | 0.8 | Repo-local git identity = GitHub no-reply address | Keeps personal/university email out of public history | Global identity |
 | 0.9 | Commits carry `Co-Authored-By: Claude`; README says Claude Code was used | Owner wants to be open about it | Omit |
 | 0.10 | Local Python 3.14.7 with CPU torch; `requires-python >= 3.10` | Installed version works; Kaggle is 3.10+ | Older Python |
-| 0.11 | Teammate names are NOT in any committed file until their consent is confirmed | Owner's rule (personal information) | Name them now |
+| 0.11 | Teammate names were kept out of committed files until consent; on 2026-10-14 the owner confirmed all three teammates agreed, and they are credited in the README (commit "Docs: credits, dataset licence") | Owner's rule (personal information) | Name them without consent |
+| 0.12 | The git history was **not** scrubbed: the names in early commit `c51e47b` are acceptable now that the teammates agreed | Owner's decision, 2026-10-14: scrub skipped | Rebase to remove the names from history |
+| 0.13 | Dataset licence handling is recorded in `LICENSES.md`: no open licence granted, data not redistributed, source credited, original authors' terms unconfirmed. No images, galleries or weights are committed; only paths/labels/group ids and aggregate numbers | The Kaggle licence field says "Data files © Original Authors", which is not an open licence | Treat the data as freely redistributable (not justified) |
 
 ## Step 1: data, leakage measurement, clean split
 
@@ -90,8 +92,8 @@ Every choice, why, and the alternatives. Numbered by step.
 
 ## Before-push checklist (nothing is pushed until the owner says so)
 
-- [ ] Teammates have agreed to be named (names are NOT in any committed file now). **Commit `c51e47b` still contains the three names in README/DECISIONS in local history: scrub it (rebase) before any push.**
-- [ ] Dataset licence read on the Kaggle page and recorded in the README (could not be verified from here).
+- [x] Teammates agreed to be named (confirmed by the owner, 2026-10-14); credited in the README. History scrub not needed (owner's decision).
+- [x] Dataset licence field recorded in README and LICENSES.md (read by the owner from the Kaggle page; original authors' terms still unconfirmed, which is stated).
 - [ ] Repo licence chosen (Ultralytics AGPL-3.0 can affect how combined code may be licensed).
 - [ ] `git log --format='%an %ae'` shows only the no-reply address.
 - [ ] `git ls-files` has no data, weights, `kaggle.json`, `LEARNING_NOTES.md` or `INTERVIEW_QA.md`; quick grep for tokens/keys.
