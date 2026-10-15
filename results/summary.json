@@ -1,0 +1,514 @@
+{
+  "runs": [
+    {
+      "name": "efficientnet_b3__clean__s0__base",
+      "role": "core",
+      "arch": "efficientnet_b3",
+      "split": "clean",
+      "seed": 0,
+      "tag": "base",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 300,
+      "schedule": "cosine",
+      "val_acc": 0.9977257220832386,
+      "macro_recall": 0.9976112371996829,
+      "ece": 0.0010075065123455822,
+      "minutes": 31.712195905049644,
+      "img_per_s": 370.7898410372567,
+      "speed_device": "cuda",
+      "size_mb": 43.018552,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "efficientnet_b3__clean__s1__base",
+      "role": "seed_replicate",
+      "arch": "efficientnet_b3",
+      "split": "clean",
+      "seed": 1,
+      "tag": "base",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 300,
+      "schedule": "cosine",
+      "val_acc": 0.9977825790311576,
+      "macro_recall": 0.9977351270223919,
+      "ece": 0.0007936724223902642,
+      "minutes": 31.746532583236693,
+      "img_per_s": 370.9238736471841,
+      "speed_device": "cuda",
+      "size_mb": 43.018552,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "efficientnet_b3__clean__s2__base",
+      "role": "seed_replicate",
+      "arch": "efficientnet_b3",
+      "split": "clean",
+      "seed": 2,
+      "tag": "base",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 300,
+      "schedule": "cosine",
+      "val_acc": 0.9973845803957243,
+      "macro_recall": 0.9972968023074301,
+      "ece": 0.0010485683282581643,
+      "minutes": 31.796561483542124,
+      "img_per_s": 370.8479304334756,
+      "speed_device": "cuda",
+      "size_mb": 43.018552,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "efficientnet_b3__original__s0__base",
+      "role": "core",
+      "arch": "efficientnet_b3",
+      "split": "original",
+      "seed": 0,
+      "tag": "base",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 300,
+      "schedule": "cosine",
+      "val_acc": 0.9969838379239699,
+      "macro_recall": 0.9967966409106004,
+      "ece": 0.0005007205602673877,
+      "minutes": 31.748576402664185,
+      "img_per_s": 369.4788764866154,
+      "speed_device": "cuda",
+      "size_mb": 43.018552,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__base",
+      "role": "core",
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "seed": 0,
+      "tag": "base",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 224,
+      "schedule": "cosine",
+      "val_acc": 0.990448032749602,
+      "macro_recall": 0.9902395794266149,
+      "ece": 0.002279148552699147,
+      "minutes": 18.03244088490804,
+      "img_per_s": 2099.5090269310153,
+      "speed_device": "cuda",
+      "size_mb": 9.0902,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__frozen_only",
+      "role": "ablation",
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "seed": 0,
+      "tag": "frozen_only",
+      "epochs": "6+0",
+      "augment": true,
+      "img_size": 224,
+      "schedule": "cosine",
+      "val_acc": 0.9372867864453036,
+      "macro_recall": 0.9372164042372453,
+      "ece": 0.005535654811949148,
+      "minutes": 18.166957358519237,
+      "img_per_s": 2109.270417696673,
+      "speed_device": "cuda",
+      "size_mb": 9.0902,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__no_aug",
+      "role": "ablation",
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "seed": 0,
+      "tag": "no_aug",
+      "epochs": "2+4",
+      "augment": false,
+      "img_size": 224,
+      "schedule": "cosine",
+      "val_acc": 0.9965317261769389,
+      "macro_recall": 0.9964985486708189,
+      "ece": 0.001291041308961501,
+      "minutes": 14.10358233054479,
+      "img_per_s": 2069.733688061242,
+      "speed_device": "cuda",
+      "size_mb": 9.0902,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__sched_constant",
+      "role": "ablation",
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "seed": 0,
+      "tag": "sched_constant",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 224,
+      "schedule": "constant",
+      "val_acc": 0.9812940641346373,
+      "macro_recall": 0.9811021952252639,
+      "ece": 0.003770239754398756,
+      "minutes": 18.798195481300354,
+      "img_per_s": 2100.419958083221,
+      "speed_device": "cuda",
+      "size_mb": 9.0902,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__sched_step",
+      "role": "ablation",
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "seed": 0,
+      "tag": "sched_step",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 224,
+      "schedule": "step",
+      "val_acc": 0.9924380259267682,
+      "macro_recall": 0.9923236385772103,
+      "ece": 0.001778875979945972,
+      "minutes": 18.457378141085307,
+      "img_per_s": 2095.2605362893105,
+      "speed_device": "cuda",
+      "size_mb": 9.0902,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__size128",
+      "role": "ablation",
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "seed": 0,
+      "tag": "size128",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 128,
+      "schedule": "cosine",
+      "val_acc": 0.9658289743006595,
+      "macro_recall": 0.9657056959051835,
+      "ece": 0.002643089980922997,
+      "minutes": 11.147507762908935,
+      "img_per_s": 4378.155757925185,
+      "speed_device": "cuda",
+      "size_mb": 9.0902,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__size160",
+      "role": "ablation",
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "seed": 0,
+      "tag": "size160",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 160,
+      "schedule": "cosine",
+      "val_acc": 0.985558335228565,
+      "macro_recall": 0.9855936044140866,
+      "ece": 0.004011388072409975,
+      "minutes": 13.418260924021403,
+      "img_per_s": 3669.6526183832966,
+      "speed_device": "cuda",
+      "size_mb": 9.0902,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "mobilenet_v2__clean__s1__base",
+      "role": "seed_replicate",
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "seed": 1,
+      "tag": "base",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 224,
+      "schedule": "cosine",
+      "val_acc": 0.9924948828746872,
+      "macro_recall": 0.992349657573198,
+      "ece": 0.0020125671879722687,
+      "minutes": 18.24435881773631,
+      "img_per_s": 2095.4379972007273,
+      "speed_device": "cuda",
+      "size_mb": 9.0902,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "mobilenet_v2__clean__s2__base",
+      "role": "seed_replicate",
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "seed": 2,
+      "tag": "base",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 224,
+      "schedule": "cosine",
+      "val_acc": 0.9898226063224926,
+      "macro_recall": 0.9896853534798873,
+      "ece": 0.0017487284772148945,
+      "minutes": 18.323052422205606,
+      "img_per_s": 2087.9121730435895,
+      "speed_device": "cuda",
+      "size_mb": 9.0902,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "mobilenet_v2__original__s0__base",
+      "role": "core",
+      "arch": "mobilenet_v2",
+      "split": "original",
+      "seed": 0,
+      "tag": "base",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 224,
+      "schedule": "cosine",
+      "val_acc": 0.9917482358297292,
+      "macro_recall": 0.9914820931459728,
+      "ece": 0.0014717623529967453,
+      "minutes": 18.708597207069396,
+      "img_per_s": 2096.7514877041067,
+      "speed_device": "cuda",
+      "size_mb": 9.0902,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    },
+    {
+      "name": "resnet50__clean__s0__base",
+      "role": "extra",
+      "arch": "resnet50",
+      "split": "clean",
+      "seed": 0,
+      "tag": "base",
+      "epochs": "2+4",
+      "augment": true,
+      "img_size": 224,
+      "schedule": "cosine",
+      "val_acc": 0.9961337275415055,
+      "macro_recall": 0.9960668353657973,
+      "ece": 0.0010556089552974204,
+      "minutes": 25.38710647424062,
+      "img_per_s": 800.9028838093834,
+      "speed_device": "cuda",
+      "size_mb": 94.343576,
+      "date": "2026-10-15",
+      "commit": "ace8631"
+    }
+  ],
+  "grouped": [
+    {
+      "arch": "efficientnet_b3",
+      "split": "clean",
+      "tag": "base",
+      "n_seeds": 3,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "val_acc_mean": 0.9976309605033734,
+      "val_acc_min": 0.9973845803957243,
+      "val_acc_max": 0.9977825790311576,
+      "val_acc_std": 0.00021525693070281122,
+      "macro_recall_mean": 0.9975477221765017,
+      "roles": [
+        "core",
+        "seed_replicate"
+      ]
+    },
+    {
+      "arch": "efficientnet_b3",
+      "split": "original",
+      "tag": "base",
+      "n_seeds": 1,
+      "seeds": [
+        0
+      ],
+      "val_acc_mean": 0.9969838379239699,
+      "val_acc_min": 0.9969838379239699,
+      "val_acc_max": 0.9969838379239699,
+      "val_acc_std": null,
+      "macro_recall_mean": 0.9967966409106004,
+      "roles": [
+        "core"
+      ]
+    },
+    {
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "tag": "base",
+      "n_seeds": 3,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "val_acc_mean": 0.9909218406489272,
+      "val_acc_min": 0.9898226063224926,
+      "val_acc_max": 0.9924948828746872,
+      "val_acc_std": 0.0013977252723441512,
+      "macro_recall_mean": 0.9907581968265667,
+      "roles": [
+        "core",
+        "seed_replicate"
+      ]
+    },
+    {
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "tag": "frozen_only",
+      "n_seeds": 1,
+      "seeds": [
+        0
+      ],
+      "val_acc_mean": 0.9372867864453036,
+      "val_acc_min": 0.9372867864453036,
+      "val_acc_max": 0.9372867864453036,
+      "val_acc_std": null,
+      "macro_recall_mean": 0.9372164042372453,
+      "roles": [
+        "ablation"
+      ]
+    },
+    {
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "tag": "no_aug",
+      "n_seeds": 1,
+      "seeds": [
+        0
+      ],
+      "val_acc_mean": 0.9965317261769389,
+      "val_acc_min": 0.9965317261769389,
+      "val_acc_max": 0.9965317261769389,
+      "val_acc_std": null,
+      "macro_recall_mean": 0.9964985486708189,
+      "roles": [
+        "ablation"
+      ]
+    },
+    {
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "tag": "sched_constant",
+      "n_seeds": 1,
+      "seeds": [
+        0
+      ],
+      "val_acc_mean": 0.9812940641346373,
+      "val_acc_min": 0.9812940641346373,
+      "val_acc_max": 0.9812940641346373,
+      "val_acc_std": null,
+      "macro_recall_mean": 0.9811021952252639,
+      "roles": [
+        "ablation"
+      ]
+    },
+    {
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "tag": "sched_step",
+      "n_seeds": 1,
+      "seeds": [
+        0
+      ],
+      "val_acc_mean": 0.9924380259267682,
+      "val_acc_min": 0.9924380259267682,
+      "val_acc_max": 0.9924380259267682,
+      "val_acc_std": null,
+      "macro_recall_mean": 0.9923236385772103,
+      "roles": [
+        "ablation"
+      ]
+    },
+    {
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "tag": "size128",
+      "n_seeds": 1,
+      "seeds": [
+        0
+      ],
+      "val_acc_mean": 0.9658289743006595,
+      "val_acc_min": 0.9658289743006595,
+      "val_acc_max": 0.9658289743006595,
+      "val_acc_std": null,
+      "macro_recall_mean": 0.9657056959051835,
+      "roles": [
+        "ablation"
+      ]
+    },
+    {
+      "arch": "mobilenet_v2",
+      "split": "clean",
+      "tag": "size160",
+      "n_seeds": 1,
+      "seeds": [
+        0
+      ],
+      "val_acc_mean": 0.985558335228565,
+      "val_acc_min": 0.985558335228565,
+      "val_acc_max": 0.985558335228565,
+      "val_acc_std": null,
+      "macro_recall_mean": 0.9855936044140866,
+      "roles": [
+        "ablation"
+      ]
+    },
+    {
+      "arch": "mobilenet_v2",
+      "split": "original",
+      "tag": "base",
+      "n_seeds": 1,
+      "seeds": [
+        0
+      ],
+      "val_acc_mean": 0.9917482358297292,
+      "val_acc_min": 0.9917482358297292,
+      "val_acc_max": 0.9917482358297292,
+      "val_acc_std": null,
+      "macro_recall_mean": 0.9914820931459728,
+      "roles": [
+        "core"
+      ]
+    },
+    {
+      "arch": "resnet50",
+      "split": "clean",
+      "tag": "base",
+      "n_seeds": 1,
+      "seeds": [
+        0
+      ],
+      "val_acc_mean": 0.9961337275415055,
+      "val_acc_min": 0.9961337275415055,
+      "val_acc_max": 0.9961337275415055,
+      "val_acc_std": null,
+      "macro_recall_mean": 0.9960668353657973,
+      "roles": [
+        "extra"
+      ]
+    }
+  ]
+}

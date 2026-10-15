@@ -1,0 +1,138 @@
+{
+  "preset": "full",
+  "env": {
+    "python": "3.13.15",
+    "torch": "2.11.0+cu128",
+    "torchvision": "0.26.0+cu128",
+    "numpy": "2.1.3",
+    "pillow": "12.3.0",
+    "ultralytics": "8.4.177",
+    "cuda": "12.8",
+    "device": "Tesla T4",
+    "git_commit": "ace8631"
+  },
+  "start_utc": "2026-10-15T10:36:03Z",
+  "stages": [
+    {
+      "name": "step1_inspect",
+      "state": "done",
+      "why": "",
+      "minutes": 4.6
+    },
+    {
+      "name": "step1_leakage",
+      "state": "done",
+      "why": "",
+      "minutes": 6.1
+    },
+    {
+      "name": "step1_clean_split",
+      "state": "done",
+      "why": "",
+      "minutes": 0.5
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__base",
+      "state": "done",
+      "why": "",
+      "minutes": 18.2
+    },
+    {
+      "name": "mobilenet_v2__original__s0__base",
+      "state": "done",
+      "why": "",
+      "minutes": 22.3
+    },
+    {
+      "name": "efficientnet_b3__clean__s0__base",
+      "state": "done",
+      "why": "",
+      "minutes": 31.9
+    },
+    {
+      "name": "efficientnet_b3__original__s0__base",
+      "state": "done",
+      "why": "",
+      "minutes": 34.6
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__frozen_only",
+      "state": "done",
+      "why": "",
+      "minutes": 18.3
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__no_aug",
+      "state": "done",
+      "why": "",
+      "minutes": 14.2
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__size128",
+      "state": "done",
+      "why": "",
+      "minutes": 11.3
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__size160",
+      "state": "done",
+      "why": "",
+      "minutes": 13.5
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__sched_constant",
+      "state": "done",
+      "why": "",
+      "minutes": 18.9
+    },
+    {
+      "name": "mobilenet_v2__clean__s0__sched_step",
+      "state": "done",
+      "why": "",
+      "minutes": 18.6
+    },
+    {
+      "name": "mobilenet_v2__clean__s1__base",
+      "state": "done",
+      "why": "",
+      "minutes": 18.4
+    },
+    {
+      "name": "mobilenet_v2__clean__s2__base",
+      "state": "done",
+      "why": "",
+      "minutes": 18.4
+    },
+    {
+      "name": "efficientnet_b3__clean__s1__base",
+      "state": "done",
+      "why": "",
+      "minutes": 31.9
+    },
+    {
+      "name": "efficientnet_b3__clean__s2__base",
+      "state": "done",
+      "why": "",
+      "minutes": 31.9
+    },
+    {
+      "name": "step5_yolo_eval",
+      "state": "done",
+      "why": "",
+      "minutes": 0.8
+    },
+    {
+      "name": "extra_background_check",
+      "state": "done",
+      "why": "",
+      "minutes": 6.3
+    },
+    {
+      "name": "resnet50__clean__s0__base",
+      "state": "done",
+      "why": "",
+      "minutes": 25.5
+    }
+  ],
+  "elapsed_min": 346.2204206864039
+}

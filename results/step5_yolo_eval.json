@@ -1,0 +1,47 @@
+{
+  "name": "step5_yolo_eval",
+  "date_utc": "2026-10-15T15:50:26+00:00",
+  "seed": 0,
+  "config": {
+    "model": "artifacts/models/mobilenet_v2__clean__s0__base.pt",
+    "csv": "splits/clean_split.csv.gz",
+    "n": 2000,
+    "root": "/kaggle/input/datasets"
+  },
+  "env": {
+    "python": "3.13.15",
+    "torch": "2.11.0+cu128",
+    "torchvision": "0.26.0+cu128",
+    "numpy": "2.1.3",
+    "pillow": "12.3.0",
+    "ultralytics": "8.4.177",
+    "cuda": "12.8",
+    "device": "Tesla T4",
+    "git_commit": "ace8631"
+  },
+  "metrics": {
+    "n_images": 2000,
+    "no_detection_rate": 0.9985,
+    "n_detected": 3,
+    "acc_whole_all": 0.9925,
+    "acc_two_stage_with_fallback_all": 0.9925,
+    "on_detected_subset": {
+      "acc_whole": 1.0,
+      "acc_crop": 1.0,
+      "crop_right_whole_wrong": 0,
+      "whole_right_crop_wrong": 0,
+      "median_box_area_fraction": 0.7858619218976175
+    },
+    "detector": {
+      "weights": "yolo11n.pt",
+      "weights_sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+      "ultralytics": "8.4.177",
+      "conf": 0.25,
+      "class_filter": [
+        58
+      ],
+      "license": "AGPL-3.0 (Ultralytics)",
+      "kind": "generic COCO detector, not trained on leaves"
+    }
+  }
+}
