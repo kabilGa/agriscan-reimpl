@@ -28,3 +28,11 @@ __pycache__/
 *.egg-info/
 .ipynb_checkpoints/
 .pytest_cache/
+
+# --- Anything that may contain dataset images: never commit (see LICENSES.md) ---
+agriscan_results/
+export/
+*.png
+*.jpg
+*.jpeg
+*.JPG
