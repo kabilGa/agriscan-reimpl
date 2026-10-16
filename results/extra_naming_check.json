@@ -1,6 +1,6 @@
 {
   "name": "extra_naming_check",
-  "date_utc": "2026-10-16T16:05:35+00:00",
+  "date_utc": "2026-10-16T16:18:24+00:00",
   "seed": 0,
   "config": {
     "csv": "splits/clean_split.csv.gz",
@@ -15,7 +15,7 @@
     "ultralytics": "8.4.177",
     "cuda": null,
     "device": "cpu",
-    "git_commit": "ec791e4+dirty"
+    "git_commit": "dd9b550"
   },
   "metrics": {
     "label": "EXTRA (naming evidence for the grouping key)",
