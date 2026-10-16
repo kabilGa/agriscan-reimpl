@@ -1,6 +1,6 @@
 {
   "name": "step8_grouped_splits",
-  "date_utc": "2026-10-16T16:10:34+00:00",
+  "date_utc": "2026-10-16T16:17:57+00:00",
   "seed": 0,
   "config": {
     "input": "file list splits/clean_split.csv.gz",
@@ -19,7 +19,7 @@
     "ultralytics": "8.4.177",
     "cuda": null,
     "device": "cpu",
-    "git_commit": "ec791e4+dirty"
+    "git_commit": "1f763f1"
   },
   "metrics": {
     "fracs_train_val_test": [
