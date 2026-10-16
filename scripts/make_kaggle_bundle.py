@@ -17,7 +17,7 @@ FILES = ["pyproject.toml", "requirements.txt", "README.md", "DECISIONS.md", "KAG
          "splits/split_hashes.json"]  # a few hundred bytes: fingerprints that let Kaggle prove it rebuilt the same split
 ALLOWED_EXT = {".py", ".ipynb", ".md", ".toml", ".txt", ".gitattributes", ".json", ""}
 BANNED_NAMES = {"LEARNING_NOTES.md", "INTERVIEW_QA.md", "kaggle.json", ".env"}
-BANNED_PARTS = {".git", ".venv", "__pycache__", "artifacts", "data", "results", "export"}
+BANNED_PARTS = {".git", ".venv", "__pycache__", "artifacts", "data", "results", "export", "agriscan.egg-info"}  # egg-info: local build metadata
 BANNED_EXT = {".pt", ".pth", ".onnx", ".ckpt", ".safetensors", ".npz", ".gz", ".zip", ".jpg", ".jpeg", ".png", ".h5"}
 
 ap = argparse.ArgumentParser()

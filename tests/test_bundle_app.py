@@ -31,6 +31,7 @@ def test_bundle_has_code_only(tmp_path):
     hashes = json.loads(zipfile.ZipFile(out).read("splits/split_hashes.json"))
     assert set(hashes) >= {"files", "leaf_map_sha256", "photo", "leaf"} and "leaf_ids" not in str(hashes)
     assert "scripts/run_grouped.py" in names and "notebooks/kaggle_run_grouped.ipynb" in names
+    assert not [n for n in names if "egg-info" in n]                                   # local build metadata stays out
 
 
 fastapi = pytest.importorskip("fastapi")
