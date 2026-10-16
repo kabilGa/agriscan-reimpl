@@ -25,6 +25,9 @@ def test_bundle_has_code_only(tmp_path):
         assert not ({".git", ".venv", "artifacts", "results", "splits"} & set(parts)), n
         assert Path(n).suffix not in {".pt", ".npz", ".gz", ".jpg", ".png", ".zip"}, n
     assert "commit" in json.loads(zipfile.ZipFile(out).read("BUNDLE_INFO.json"))
+    jsons = [n for n in names if n.endswith(".json")]
+    assert set(jsons) <= {"BUNDLE_INFO.json", "splits/split_hashes.json"}, jsons       # no results, no leaf map, no split CSVs
+    assert "scripts/run_grouped.py" in names and "notebooks/kaggle_run_grouped.ipynb" in names
 
 
 fastapi = pytest.importorskip("fastapi")

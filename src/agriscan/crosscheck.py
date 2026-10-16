@@ -74,3 +74,25 @@ def group_capture(df: pd.DataFrame) -> dict:
             "sources_spanning_multiple_labels": int((k.groupby("key").label.nunique() > 1).sum()),
             "captured_by_augmentation": {a: {"n_images_with_sibling": int(r["size"]), "grouped_with_a_sibling": int(r["sum"])}
                                          for a, r in by_aug.iterrows()}}
+
+
+def original_repo_naming(paths: list[str]) -> dict:
+    """Naming facts of the ORIGINAL PlantVillage raw/color tree: paths look like '<class>/<file name>'."""
+    rows = []
+    for p in paths:
+        cls, name = p.split("/", 1)
+        stem = re.sub(r"\.(jpg|jpeg|png)$", "", name, flags=re.I)
+        head, sep, rest = stem.partition("___")
+        uuid, body = (head, rest) if (sep and UUID.fullmatch(head)) else (None, stem)
+        base = re.sub(r"\s*copy\s*\d*$", "", body).strip().lower()
+        rows.append((cls, uuid, body, base, " copy" in body, bool(re.search(r"_flip|_\d+deg|_new", body))))
+    d = pd.DataFrame(rows, columns=["cls", "uuid", "body", "base", "is_copy", "has_aug"])
+    u = d[d.uuid.notna()]
+    g = d.groupby(["cls", "base"]).agg(n=("body", "size"), n_uuid=("uuid", "nunique"), any_copy=("is_copy", "any"))
+    with_copy = g[g.any_copy & (g.n > 1)]
+    return {"n_files": int(len(d)), "n_classes": int(d.cls.nunique()), "n_with_uuid_prefix": int(len(u)),
+            "n_distinct_uuids": int(u.uuid.nunique()), "uuids_used_by_more_than_one_file": int((u.uuid.value_counts() > 1).sum()),
+            "files_without_uuid_by_class": d[d.uuid.isna()].cls.value_counts().to_dict(),
+            "files_with_augmentation_suffix": int(d.has_aug.sum()), "copy_named_files": int(d.is_copy.sum()),
+            "groups_with_a_copy_file": int(len(with_copy)), "of_which_with_more_than_one_uuid": int((with_copy.n_uuid > 1).sum()),
+            "same_class_and_base_name_but_different_uuid_without_copy": int((~g.any_copy & (g.n_uuid > 1)).sum())}

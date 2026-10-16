@@ -13,8 +13,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 DIRS = ["src", "scripts", "tests", "notebooks"]
-FILES = ["pyproject.toml", "requirements.txt", "README.md", "DECISIONS.md", "KAGGLE_RUN.md", ".gitattributes"]
-ALLOWED_EXT = {".py", ".ipynb", ".md", ".toml", ".txt", ".gitattributes", ""}
+FILES = ["pyproject.toml", "requirements.txt", "README.md", "DECISIONS.md", "KAGGLE_RUN.md", ".gitattributes",
+         "splits/split_hashes.json"]  # a few hundred bytes: fingerprints that let Kaggle prove it rebuilt the same split
+ALLOWED_EXT = {".py", ".ipynb", ".md", ".toml", ".txt", ".gitattributes", ".json", ""}
 BANNED_NAMES = {"LEARNING_NOTES.md", "INTERVIEW_QA.md", "kaggle.json", ".env"}
 BANNED_PARTS = {".git", ".venv", "__pycache__", "artifacts", "data", "results", "export"}
 BANNED_EXT = {".pt", ".pth", ".onnx", ".ckpt", ".safetensors", ".npz", ".gz", ".zip", ".jpg", ".jpeg", ".png", ".h5"}

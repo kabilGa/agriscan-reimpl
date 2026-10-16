@@ -95,3 +95,42 @@ def test_head_only_run_has_no_ft_stage(tmp_path):
     out = train_run(_cfg(tmp_path, data, name="frozen", epochs_head=2, epochs_ft=0, save_model=False))
     assert {h["stage"] for h in out["metrics"]["history"]} == {"head"}
     assert json.loads((tmp_path / "res" / "frozen.json").read_text())["config"]["epochs_ft"] == 0
+
+
+def test_grouped_split_reports_test_once_and_leaf_mapped_subset(tmp_path, monkeypatch):
+    import pandas as pd
+
+    from agriscan import train as T
+    from agriscan.data import find_splits, list_images
+    from agriscan.grouping import build_grouped_splits
+    from synth import make_grouped_dataset
+
+    data = tmp_path / "data"
+    leaf_map = make_grouped_dataset(data, n_sources=40)
+    dirs = find_splits(data)
+    files = pd.concat([list_images(dirs[s], s, data) for s in ("train", "valid")])[["rel", "label"]]
+    _, splits = build_grouped_splits(files, leaf_map)
+    csv = tmp_path / "leaf_split.csv.gz"
+    splits["leaf"].to_csv(csv, index=False)
+
+    seen = []
+    real = T.run_epoch
+
+    def spy(model, loader, *a, **k):
+        seen.append(len(loader.dataset))
+        return real(model, loader, *a, **k)
+
+    monkeypatch.setattr(T, "run_epoch", spy)
+    out = T.train_run(_cfg(tmp_path, data, name="leaf", split="leaf", csv=str(csv), epochs_head=1, epochs_ft=1,
+                           limit_train=40, limit_val=7, limit_test=11, save_model=False))
+    m = out["metrics"]
+    assert seen.count(11) == 1 and seen[-1] == 11                       # the test split was used exactly once, last
+    t = m["test"]
+    assert t["n"] == 11 and t["evaluated_once_after_final_epoch"] is True
+    assert t["leaf_mapped"]["n"] + t["not_leaf_mapped"]["n"] == 11 and 0 <= t["acc"] <= 1
+    assert len(t["confusion_matrix"]) == 3 and sum(map(sum, t["confusion_matrix"])) == 11
+    assert "test" not in str(m["history"]) and m["val_leaf_mapped"]["n"] + m["val_not_leaf_mapped"]["n"] == 7
+    # splits without a test part (original, clean) report no test section
+    d2 = tmp_path / "d2"
+    make_dataset(d2, n_orig=6)
+    assert "test" not in T.train_run(_cfg(tmp_path, d2, name="orig", split="original"))["metrics"]

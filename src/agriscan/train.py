@@ -89,20 +89,60 @@ class ImageDataset(Dataset):
         return self.tfm(Image.open(self.paths[i]).convert("RGB")), self.labels[i]
 
 
+CSV_SPLITS = ("clean", "photo", "leaf")  # clean: embedding groups (train/val); photo, leaf: grouped (train/val/test)
+
+
+def _read_split_csv(csv, root):
+    c = pd.read_csv(csv)
+    c["path"] = c.rel.map(lambda r: str(Path(root) / r))
+    return c
+
+
 def load_split(split: str, root, csv=None):
-    """'original' = the dataset's own train/valid folders; 'clean' = our group-aware CSV."""
+    """'original' = the dataset's own train/valid folders; 'clean', 'photo', 'leaf' = our group-aware CSV files."""
     root = Path(root)
     if split == "original":
         d = find_splits(root)
         tr, va = list_images(d["train"], "train", root), list_images(d["valid"], "valid", root)
-    elif split == "clean":
-        c = pd.read_csv(csv)
-        c["path"] = c.rel.map(lambda r: str(root / r))
+        classes = sorted(set(tr.label) | set(va.label))
+    elif split in CSV_SPLITS:
+        c = _read_split_csv(csv, root)
         tr, va = c[c.split == "train"], c[c.split == "val"]
+        classes = sorted(set(c.label))  # includes test-only labels, if any
     else:
         raise ValueError(split)
-    classes = sorted(set(tr.label) | set(va.label))
     return tr.reset_index(drop=True), va.reset_index(drop=True), classes
+
+
+def load_test(split: str, root, csv=None):
+    """The held-out test rows of a CSV split, or None if the split has none (original, clean)."""
+    if split not in CSV_SPLITS:
+        return None
+    c = _read_split_csv(csv, root)
+    t = c[c.split == "test"]
+    return t.reset_index(drop=True) if len(t) else None
+
+
+def report(stats: dict, df: pd.DataFrame, cidx: dict, classes: list) -> dict:
+    """Metrics of one evaluation pass, plus the same accuracy on files covered / not covered by the authors' leaf map."""
+    nc = len(classes)
+    hit = stats["hit"].numpy().astype(bool)
+    y = df.label.map(cidx).to_numpy()
+    mapped = df["leaf_mapped"].to_numpy(bool) if "leaf_mapped" in df else np.zeros(len(df), bool)
+
+    def macro(mask):
+        r = [hit[mask & (y == c)].mean() for c in range(nc) if (mask & (y == c)).any()]
+        return float(np.mean(r)) if r else None
+
+    def part(mask):
+        return {"n": int(mask.sum()), "acc": float(hit[mask].mean()) if mask.any() else None, "macro_recall": macro(mask)}
+
+    cm = stats["cm"]
+    support = cm.sum(1)
+    return {"n": int(len(df)), "acc": stats["acc"], "loss": stats["loss"], "macro_recall": macro(np.ones(len(df), bool)),
+            "per_class_recall": dict(zip(classes, [float(cm[i, i] / support[i]) if support[i] > 0 else None for i in range(nc)])),
+            "confusion_matrix": cm.tolist(), "ece_15bins": ece(stats["conf"], stats["hit"]),
+            "leaf_mapped": {**part(mapped), "fraction": float(mapped.mean())}, "not_leaf_mapped": part(~mapped)}
 
 
 def ece(conf: torch.Tensor, correct: torch.Tensor, bins: int = 15) -> float:
@@ -188,6 +228,9 @@ def train_run(cfg: dict):
         tr = tr.sample(min(cfg["limit_train"], len(tr)), random_state=cfg["seed"]).reset_index(drop=True)
     if cfg.get("limit_val"):
         va = va.sample(min(cfg["limit_val"], len(va)), random_state=cfg["seed"]).reset_index(drop=True)
+    te = load_test(cfg["split"], cfg["root"], cfg.get("csv"))
+    if te is not None and cfg.get("limit_test"):
+        te = te.sample(min(cfg["limit_test"], len(te)), random_state=cfg["seed"]).reset_index(drop=True)
     cidx = {c: i for i, c in enumerate(classes)}
     nc = len(classes)
 
@@ -263,6 +306,18 @@ def train_run(cfg: dict):
                "forward_img_per_s": measure_speed(model, dl_va, device, amp), "speed_device": device,
                "n_train": len(tr), "n_val": len(va), "img_size": size, "batch": batch,
                "final_epoch_reported": "last epoch (no best-epoch selection on validation)"}
+    if "leaf_mapped" in va:  # validation accuracy split by whether the authors' leaf map covers the file
+        vr = report(val, va, cidx, classes)
+        metrics["val_leaf_mapped"], metrics["val_not_leaf_mapped"] = vr["leaf_mapped"], vr["not_leaf_mapped"]
+    if te is not None:
+        # The held-out test split is evaluated ONCE, here, after the last epoch. It is not in `history` and nothing was
+        # selected or tuned on it.
+        dl_te = DataLoader(ImageDataset(te.path, te.label.map(cidx), tfm_ev), shuffle=False, **kw)
+        model.eval()
+        metrics["test"] = report(run_epoch(model, dl_te, device, loss_fn, amp=amp, nc=nc), te, cidx, classes)
+        metrics["test"]["evaluated_once_after_final_epoch"] = True
+        print(f"[{name}] test (once): acc={metrics['test']['acc']:.4f} | leaf-mapped subset acc={metrics['test']['leaf_mapped']['acc']} "
+              f"(n={metrics['test']['leaf_mapped']['n']} of {metrics['test']['n']})")
     if cfg.get("split_meta"):
         metrics["split_meta"] = cfg["split_meta"]
     save_results(res_path, name=name, seed=cfg["seed"], config=cfg, metrics=metrics)
