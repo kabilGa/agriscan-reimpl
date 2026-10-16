@@ -63,12 +63,22 @@ def load_leaf_map(path, url: str = LEAF_MAP_URL, retries: int = 3):
     return json.loads(path.read_text(encoding="utf-8")), sha256_file(path), downloaded
 
 
+# The authors' map names two of our classes differently. Both aliases were found by comparing file names, not assumed
+# (DECISIONS G.11): every stem of Apple___Black_rot is in the map, but only under 'Apple_Frogeye Spot'; Tomato___Target_Spot
+# exists in the map with the same 1404 numbers but the code prefix 'com.g_fl' instead of 'com.g_tgs_fl'.
+CLASS_ALIASES = {"Apple___Black_rot": ("Apple_Frogeye Spot",)}
+CODE_ALIASES = {"Tomato___Target_Spot": {"com.g_tgs_fl": "com.g_fl"}}
+
+
 def leaf_id(stem, base, label, leaf_map):
-    """The authors' leaf id for a photo, restricted to the photo's own class (stems repeat across classes)."""
+    """The authors' leaf id for a photo, restricted to the photo's own class (stems repeat across crops), with the two
+    documented aliases above."""
+    classes = {label, *CLASS_ALIASES.get(label, ())}
     for k in (stem, base):
-        c = [leaf for leaf in leaf_map.get(k, []) if leaf.split(":::")[0] == label]
+        keys = [k] + [new + k[len(old):] for old, new in CODE_ALIASES.get(label, {}).items() if k.startswith(old + " ")]
+        c = {leaf for key in keys for leaf in leaf_map.get(key, []) if leaf.split(":::")[0] in classes}
         if len(c) == 1:
-            return c[0]
+            return next(iter(c))
     return None
 
 

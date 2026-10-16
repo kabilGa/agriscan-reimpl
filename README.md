@@ -1,8 +1,8 @@
-Re-implementation of a 2026 team project; original files lost; this repo covers my vision and web part.
+﻿Re-implementation of a 2026 team project; original files lost; this repo covers my vision and web part.
 
 # AgriScan: plant disease detection (vision + web re-implementation)
 
-**Status: one full Kaggle run (2026-10-15, code commit `ace8631`) is recorded in `results/`. Read "Evaluation and limits" before quoting any number: the validation sets used here share source photos with the training data, so the high accuracies below measure in-dataset recall, not performance on new leaves or field photos.** Every number in this README is generated from JSON files under `results/` (each with seed, config, date and code commit) by `scripts/10_results_table.py`. Nothing is copied from the original project or from a CV, and no claim is made about the original project's reported accuracy.
+**Status: one full Kaggle run (2026-10-15, code commit `ace8631`) is recorded in `results/`. Read "Evaluation and limits" before quoting any number: the validation sets of that first run share source photos with the training data, so its high accuracies measure in-dataset recall, not performance on new leaves or field photos. A second protocol with leakage-controlled splits is implemented and its splits are built and checked (see "Second protocol: grouped splits"); its training run on Kaggle has not been executed yet, so the tables for it say "not run yet".** Every number in this README is generated from JSON files under `results/` (each with seed, config, date and code commit) by `scripts/10_results_table.py` and `scripts/13_grouped_table.py`. Nothing is copied from the original project or from a CV, and no claim is made about the original project's reported accuracy.
 
 ## Status
 
@@ -11,7 +11,7 @@ A step is marked "ran on Kaggle" only because its results JSON exists in `result
 | Step | What | Status |
 |---|---|---|
 | 0 | Environment, repo, CPU smoke test, results/seed helpers | done; smoke test run locally on CPU |
-| 1 | Data inspection, near-duplicate leakage measurement, clean grouped split | ran on Kaggle (2026-10-15, `ace8631`): `results/step1_*.json`, `splits/clean_split.csv.gz`. The measurement found that the "clean" split is not clean (see below) |
+| 1 | Data inspection, near-duplicate leakage measurement, similarity-based "clean" split | ran on Kaggle (2026-10-15, `ace8631`): `results/step1_*.json`, `splits/clean_split.csv.gz`. The similarity-based split is a first attempt that **failed to remove leakage** (kept, and reported as failed; see below) |
 | 2 | MobileNetV2: frozen head, then fine-tuning (original and clean split) | ran on Kaggle (2026-10-15, `ace8631`): `results/runs/mobilenet_v2__*.json` |
 | 3 | EfficientNet-B3 (original and clean split), comparison | ran on Kaggle (2026-10-15, `ace8631`): `results/runs/efficientnet_b3__*.json` |
 | 4 | Ablations: frozen vs fine-tuned, augmentation, image size, LR schedule | ran on Kaggle (2026-10-15, `ace8631`), one seed each: `results/runs/mobilenet_v2__clean__s0__*.json` |
@@ -21,6 +21,7 @@ A step is marked "ran on Kaggle" only because its results JSON exists in `result
 | 8 | Final docs | done: README, DECISIONS.md, LICENSES.md |
 | optional | background-only check, ResNet-50 baseline | ran on Kaggle (2026-10-15, `ace8631`): `results/extra_background_check.json`, `results/runs/resnet50__clean__s0__base.json`. YOLO fine-tuning: not done (no box labels) |
 | extra | file-name cross-check of leakage and of the clean split | ran locally on the committed split file (commit recorded in the JSON): `results/extra_filename_crosscheck.json` |
+| 9 | Second protocol: photo-grouped and leaf+photo-grouped 70/15/15 splits; re-run of both backbones with a held-out test part | **splits built and checked locally** (`splits/photo_split.csv.gz`, `splits/leaf_split.csv.gz`, `splits/split_hashes.json`, `results/step8_grouped_splits.json`, `results/extra_naming_check.json`; code commit recorded in the JSON). **Training: not run yet** (code and Kaggle runner tested on synthetic data only) |
 
 ## Credits
 
@@ -29,7 +30,7 @@ The original AgriScan was a team project (April 2026) in which I was lead develo
 ## What this repo covers
 
 - A two-stage vision pipeline: a pretrained YOLO detector finds regions, each is cropped and classified by a CNN (38 classes).
-- Transfer-learning classifiers (MobileNetV2, EfficientNet-B3), trained and compared on the dataset's original split and on a second split I built by grouping embedding near-copies.
+- Transfer-learning classifiers (MobileNetV2, EfficientNet-B3), trained and compared on the dataset's original split, on a similarity-based split I built first (an attempt that failed to remove leakage), and, in the second protocol, on photo-grouped and leaf+photo-grouped splits with a held-out test part.
 - A small FastAPI web app: photo upload, single-frame endpoint, results page.
 - A webcam or video file stands in for the robot's phone-camera stream (`scripts/06_pipeline_demo.py`).
 
@@ -63,6 +64,14 @@ Rebuild the tables below from the committed JSON files:
 ```bash
 python scripts/09_filename_crosscheck.py                 # extra: file-name based leakage check (needs only splits/clean_split.csv.gz)
 python scripts/10_results_table.py --readme README.md    # rewrites the generated block between the RESULTS markers
+python scripts/13_grouped_table.py --readme README.md    # rewrites the generated block between the GROUPED markers
+```
+
+Rebuild the grouped splits (CPU, seconds; downloads the authors' leaf map into the git-ignored `artifacts/`, checks the result against `splits/split_hashes.json`) and the naming evidence:
+
+```bash
+python scripts/11_make_grouped_splits.py                 # writes splits/photo_split.csv.gz and splits/leaf_split.csv.gz
+python scripts/12_naming_check.py                        # extra: naming of the original repository and of the Kaggle copy (needs internet)
 ```
 
 ## Run the web app
@@ -189,6 +198,78 @@ Background-only check (EXTRA): an MLP on the colour statistics of four 16x16 ima
 
 <!-- RESULTS:END -->
 
+## Second protocol: grouped splits
+
+The first protocol above has a validation set that shares source photos with its training data. The second protocol rebuilds the split so that this cannot happen, and adds a held-out test part. The first, similarity-based "clean" split is **kept and reported as a failed attempt** to remove leakage (numbers in the generated block below); nothing from the first run was deleted.
+
+**How groups are formed.** Two images are linked if they share a UUID prefix, or share a class and a base file name (the name with extension, augmentation suffix and ` copy N` removed). For the **leaf split** they are also linked if the original PlantVillage authors' leaf map (`leaf_grouping/leaf-map.json`) assigns them to the same physical leaf. Whole groups go to train / validation / test (about 70/15/15, stratified by class). The leaf map is downloaded at run time and is **never committed**; the original repository states no licence (see LICENSES.md). Only group ids and a `leaf_mapped` flag are in the committed split files. The split is rebuilt on Kaggle and compared with committed fingerprints (`splits/split_hashes.json`); a mismatch stops the run before any training.
+
+**Primary protocol and headline.** The leaf+photo-grouped split is the primary protocol; the photo-grouped split is the intermediate step, so the results table shows original, then photo-grouped, then leaf-grouped. **The headline number is the accuracy on the leaf-mapped subset of the test part of the leaf-grouped split**: the files covered by the authors' leaf map, where same-leaf leakage is 0.0% by construction. It is reported next to the overall test accuracy and next to the accuracy on files without a leaf id. Protocol: same as the first run (2 epochs with a frozen backbone, 4 fine-tuning epochs, final epoch reported), **one seed per backbone and split**, and the test part is evaluated exactly once per run, after the last epoch.
+
+**What is not covered.** About 23% of the files are not covered by the leaf map (the exact share is in the generated block). Those files are grouped by photo only, so same-leaf leakage can remain for them, even in the leaf split; this is why the headline uses the leaf-mapped subset and why the overall test accuracy is not the headline. The gap is not spread evenly: **7 of the 38 classes have no leaf id at all** (all four corn classes among them), so the headline covers only the other 31 classes and says nothing about those seven.
+
+**Three doubts about the grouping key** (evidence in the generated block, from `results/extra_naming_check.json`):
+
+1. **One whole class has no UUID.** All images of `Corn_(maize)___Common_rust_` lack a UUID prefix in the original repository and in the Kaggle copy, so for them the grouping rests only on the base file name.
+2. **` copy` files carry their own UUID**, different from the file they copy. I have not looked at the pixels; the key links them through the shared base name, on the assumption that they are the same photo.
+3. **"Same UUID = same photo" is supported, "different UUID = different photo" is not.** UUIDs were distinct per file in the part of the original repository that GitHub's API returned (the listing was truncated and does not cover every class), and the Kaggle copy never reuses a UUID across labels or base names; but a few file pairs share class and base name under different UUIDs, and I cannot verify the dataset author's pipeline.
+
+<!-- GROUPED:START -->
+_Generated by `scripts/13_grouped_table.py` from `results/`; do not edit by hand._
+
+### First attempt: similarity-based split (kept, and reported as failed)
+
+The first 'clean' split grouped images by embedding similarity. It did **not** remove leakage: by the file-name check 63.1% of the original validation images have a same-source image in train, and still 54.2% of that split's validation images do. Its results stay in the tables above.
+
+### Second protocol: grouped splits (construction and checks)
+
+Images are linked into groups (union of: same UUID, same class + base file name, and for the leaf split also the authors' leaf id). Whole groups go to train / validation / test (target 70/15/15, stratified by class, seed 0). Input: 87867 files. Split fingerprints are committed in `splits/split_hashes.json` and re-checked on Kaggle.
+
+| check | photo-grouped | leaf+photo-grouped (primary) |
+|---|---|---|
+| images train / val / test | 61409 / 13230 / 13228 | 61012 / 13414 / 13441 |
+| groups (largest) | 45040 (16) | 17399 (132) |
+| groups over 100 images | 0 | 3 |
+| per-class val share (min-max) | 0.150-0.153 | 0.150-0.161 |
+| per-class test share (min-max) | 0.150-0.153 | 0.150-0.170 |
+| groups / UUIDs / base names shared across parts | 0 / 0 / 0 | 0 / 0 / 0 |
+| leaf ids shared across parts | 5626 | 0 |
+| test images with a leaf id | 10145 | 10312 |
+| val images (with a leaf id) whose leaf is also in train | 96.6% of 10171 | 0.0% of 10294 |
+| test images (with a leaf id) whose leaf is also in train | 96.6% of 10145 | 0.0% of 10312 |
+
+**Leaf-map coverage: 76.6% of the files** (67317 of 87867) have a leaf id from the authors' map; the other 23.4% are grouped by photo only, so same-leaf leakage can remain for them even in the leaf split. Per-class coverage ranges 0.0%-100.0%. **7 of 38 classes have no leaf id at all** (Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot, Corn_(maize)___Common_rust_, Corn_(maize)___Northern_Leaf_Blight, Corn_(maize)___healthy, Grape___healthy, Squash___Powdery_mildew, Tomato___Tomato_mosaic_virus), so the leaf-mapped subset, and therefore the headline number, covers only the other 31 classes. The map is downloaded at run time (sha256 `3b4b253683c6...`) and is not committed.
+Files without a UUID: 2384 (Corn_(maize)___Common_rust_: 2384); files named with ' copy': 2921.
+
+### Evidence for the grouping key (naming check)
+
+Original PlantVillage repository (GitHub API, 50289 files in 36 classes; tree truncated by GitHub: True): 49097 files have a UUID prefix and 49097 UUIDs are distinct (0 UUIDs are used by more than one file); 1192 files have no UUID (Corn_(maize)___Common_rust_: 1192); 0 files carry an augmentation suffix; 1366 files are named ' copy', and in 607 of 607 (class, base name) groups that contain a copy the files have more than one UUID.
+
+Kaggle copy: 2384 files have no UUID (Corn_(maize)___Common_rust_: 2384); 0 UUIDs appear under more than one label and 0 under more than one base name. On the dataset's original split, the share of validation images with a group member in train is 63.1% (uuid_only (files without uuid kept alone)), 65.9% (class_and_base_name), 65.9% (union_of_both). The union key gives 45040 groups, the largest with 16 images (0 groups over 40).
+
+### Results by protocol (one seed per grouped run)
+
+Final-epoch metrics. Validation accuracy for 'clean' is the mean of 3 seeds; every other row is one run. **Headline number: the leaf-mapped test accuracy on the leaf-grouped split** (files covered by the authors' leaf map; same-leaf leakage is 0.0% there).
+
+| backbone | protocol | val acc | test acc (all) | test acc, leaf-mapped files (n) | test acc, files without leaf id (n) |
+|---|---|---|---|---|---|
+| mobilenet_v2 | original split (dataset's own) | 0.9917 | - | - | - |
+| mobilenet_v2 | similarity 'clean' split (failed attempt, 3 seeds) | 0.9909 | - | - | - |
+| mobilenet_v2 | photo-grouped | not run yet | not run yet | not run yet | not run yet |
+| mobilenet_v2 | leaf+photo-grouped (primary) | not run yet | not run yet | not run yet | not run yet |
+| efficientnet_b3 | original split (dataset's own) | 0.9970 | - | - | - |
+| efficientnet_b3 | similarity 'clean' split (failed attempt, 3 seeds) | 0.9976 | - | - | - |
+| efficientnet_b3 | photo-grouped | not run yet | not run yet | not run yet | not run yet |
+| efficientnet_b3 | leaf+photo-grouped (primary) | not run yet | not run yet | not run yet | not run yet |
+
+The grouped runs have not been executed yet, so there is no headline number.
+
+### Observations (generated from the numbers above)
+
+- No grouped runs yet.
+
+<!-- GROUPED:END -->
+
 ## Evaluation and limits
 
 ### What was measured
@@ -218,16 +299,18 @@ Background-only check (EXTRA): an MLP on the colour statistics of four 16x16 ima
 
 ### Limits
 
-- **Dataset provenance.** The Kaggle dataset is a third-party augmented derivative of PlantVillage. The original repository's README says that its own Hugging Face train/test splits follow a leaf-grouping logic meant to prevent leakage, and it ships `leaf_grouping/` metadata; I did not use that grouping (the Kaggle file names carry no leaf id), so even a split grouped by file-name UUID would not separate different photos of the same physical leaf.
+- **UUID (photo) grouping removes augmentation leakage only.** It keeps a photo and its augmented copies together, but it does **not** remove same-leaf or same-plant leakage: different photos of one physical leaf have different UUIDs and, in the photo-grouped split, land in different parts (the generated block shows how often). Only the leaf-grouped split removes it, and only for files covered by the authors' leaf map. The original repository's README says that its own Hugging Face splits follow a leaf-grouping logic meant to prevent leakage, and the first-run similarity split did not use it.
+- **About 23% of the files have no leaf id**, so even the leaf-grouped split can leak same-leaf information for them; the headline number is therefore the leaf-mapped-subset accuracy. The three doubts about the grouping key (a class without UUIDs, ` copy` files with their own UUID, "same UUID = same photo" supported but the converse not) are described in "Second protocol".
+- **Even grouped numbers are lab-condition numbers.** The corner-only classifier from the first run scored far above chance, so background and lighting cues carry label information in this dataset. A model can use them, and a leakage-free split does not remove that. Grouped accuracies describe lab-style photos on plain backgrounds, not field performance.
 - **Leakage ground truth is itself an assumption.** The UUID prefix is read as a source-photo id; files without a parsable id (the count is in the table above) are counted as not leaking, so the reported shares are, if anything, underestimates.
-- **Embedding split.** The clean split removes only the near-copies the embedding recognized at the chosen fixed threshold; its construction, not the models, is what limits the conclusions. The derived-threshold rule I wrote in advance also failed on real data: grouping at the threshold it produced chained into one giant group, and the similarity distribution is a continuum without two clear modes.
+- **Embedding split (first attempt).** It removed only the near-copies the embedding recognized at the chosen fixed threshold; its construction, not the models, is what limits the conclusions of the first run. The derived-threshold rule I wrote in advance also failed on real data: grouping at the threshold it produced chained into one giant group, and the similarity distribution is a continuum without two clear modes.
 - **Detector.** Generic COCO model restricted to "potted plant"; no leaf-specific detector was used, and no detector was trained (no box labels).
-- **Seeds, tests, hardware.** Few seeds; one GPU used on a Kaggle T4 x2 machine; forward-only throughput excludes data loading; no held-out test set.
-- **Skipped or not done.** All 20 planned stages ran. Not done: YOLO fine-tuning, probability calibration, field-image evaluation, a source-grouped or leaf-grouped re-split and re-run.
+- **Seeds, tests, hardware.** First run: few seeds, one GPU used on a Kaggle T4 x2 machine, forward-only throughput excludes data loading, no held-out test set. Second protocol: one seed per backbone and split, a held-out test part used once per run, and the training run itself has not been executed yet.
+- **Skipped or not done.** All 20 planned stages of the first run ran. Not done: YOLO fine-tuning, probability calibration, field-image evaluation, and (until its Kaggle run) the training part of the second protocol.
 
 ### What I would do next
 
-1. Rebuild the split by source id (and by leaf using the original dataset's grouping metadata), re-run both backbones, and compare against the numbers here. The headline accuracies may move; I have not measured by how much.
+1. Run the second protocol on Kaggle (about 1.6 h, an estimate; steps in `KAGGLE_RUN.md`) and compare original, photo-grouped and leaf-grouped numbers. The headline accuracies may move; I have not measured by how much.
 2. Evaluate on field-condition images (for example PlantDoc-style data) to measure the lab-to-field gap.
 3. Recalibrate probabilities (temperature scaling) on a clean validation set before showing percentages to users.
 4. Replace the generic detector with a leaf detector whose licence I can confirm, fine-tuned on labelled boxes, and measure it against the whole-image baseline.
@@ -236,5 +319,6 @@ Background-only check (EXTRA): an MLP on the colour statistics of four 16x16 ima
 
 - Ultralytics YOLO is licensed AGPL-3.0; the YOLO11n weights are from the official Ultralytics release (file hash and package version are in `results/step5_yolo_eval.json`).
 - **Dataset:** ["New Plant Diseases Dataset"](https://www.kaggle.com/datasets/vipoooool/new-plant-diseases-dataset) on Kaggle (owner: vipoooool). The Kaggle licence field reads "Data files © Original Authors". The original source is [spMohanty/PlantVillage-Dataset](https://github.com/spMohanty/PlantVillage-Dataset) (Mohanty, Hughes and Salathé, 2016, DOI 10.3389/fpls.2016.01419); I checked that repository on 2026-10-15 and it states no licence (see LICENSES.md). **I use this dataset only for my own learning and portfolio work and do not redistribute it.** No images, galleries or weights trained on it are committed. Source credited; original authors' terms unconfirmed. Details: [LICENSES.md](LICENSES.md).
+- The authors' leaf map (`leaf_grouping/leaf-map.json` in the PlantVillage repository, which states no licence) is downloaded at run time to build the leaf split and is **not committed**; the committed split files contain only group ids and a `leaf_mapped` flag, never leaf ids.
 - torchvision ImageNet weights (MobileNetV2, EfficientNet-B3, ResNet-50) are downloaded at run time.
 - The licence of this repo's own code is not chosen yet; a recommendation is in DECISIONS.md.

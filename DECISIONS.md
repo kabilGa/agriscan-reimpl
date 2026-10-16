@@ -1,4 +1,4 @@
-# Decisions
+﻿# Decisions
 
 Every choice, why, and the alternatives. Numbered by step.
 
@@ -18,7 +18,7 @@ Every choice, why, and the alternatives. Numbered by step.
 | 0.10 | Local Python 3.14.7 with CPU torch; `requires-python >= 3.10` | Installed version works; Kaggle is 3.10+ | Older Python |
 | 0.11 | Teammate names were kept out of committed files until consent; on 2026-10-14 the owner confirmed all three teammates agreed, and they are credited in the README (commit "Docs: credits, dataset licence") | Owner's rule (personal information) | Name them without consent |
 | 0.12 | The git history was **not** scrubbed: the names in early commit `c51e47b` are acceptable now that the teammates agreed | Owner's decision, 2026-10-14: scrub skipped | Rebase to remove the names from history |
-| 0.13 | Dataset licence handling is recorded in `LICENSES.md`: no open licence granted, data not redistributed, source credited, original authors' terms unconfirmed. No images, galleries or weights are committed; only paths/labels/group ids and aggregate numbers | The Kaggle licence field says "Data files © Original Authors", which is not an open licence | Treat the data as freely redistributable (not justified) |
+| 0.13 | Dataset licence handling is recorded in `LICENSES.md`: no open licence granted, data not redistributed, source credited, original authors' terms unconfirmed. No images, galleries or weights are committed; only paths/labels/group ids and aggregate numbers | The Kaggle licence field says "Data files Â© Original Authors", which is not an open licence | Treat the data as freely redistributable (not justified) |
 
 ## Step 1: data, leakage measurement, clean split
 
@@ -144,3 +144,21 @@ Whichever is chosen: put the owner's name and year in a `LICENSE` file; state th
 - `set_seed` makes runs comparable, not bit-identical on GPU; resumed runs likewise.
 - The first real run (2026-10-15, one T4) is a single execution; the original split and every ablation have one seed each.
 - The clean split is clean only against embedding similarity at its threshold, not against shared source photos (see README, "Evaluation and limits").
+
+## Second protocol: grouped splits and re-run (approved by the owner)
+
+| # | Decision | Why | Alternatives considered |
+|---|---|---|---|
+| G.1 | Group key = union of (same UUID) and (same class + base file name, with extension, augmentation suffix and ` copy N` removed) | Checked on the original repository's file names: UUIDs are distinct per file, but a whole class (Corn common rust) has no UUID and ` copy` files have their own UUID. UUID alone would leave both leaking. On the real file list the union gives groups of at most 16 images (no chaining) | UUID only (the first proposal) |
+| G.2 | Leaf split = photo groups additionally linked by the authors' leaf id (class-restricted, because stems repeat across crops); it is the **primary** protocol, the photo split the intermediate step | Photo grouping alone left most validation/test images with a same-leaf image in train (measured: see README). The leaf map covers about 77% of the files (after the two aliases in G.11); the rest stay photo-grouped, so the headline is the leaf-mapped subset accuracy | Photo split only |
+| G.3 | The leaf map is downloaded at run time and never committed; committed split files carry only group ids and a `leaf_mapped` flag | The original repository states no licence; owner's rule | Commit the map or leaf ids |
+| G.4 | 70/15/15 per class, whole groups, seeded; a group that would push a part past 1.3x its target goes elsewhere; group ids are canonical (smallest file path in the group) | Deterministic and independent of the graph library's labelling. The leaf split's per-class val share reaches 0.194 because of a few large leaf groups (measured, reported) | Stratify by group size; drop large groups |
+| G.5 | The split is fingerprinted (SHA-256 of file list, leaf map and both assignments) in `splits/split_hashes.json`; Kaggle rebuilds the split from the dataset folder and stops on any mismatch | Proves the Kaggle run used the committed split without shipping data-derived files in the bundle | Ship the split CSVs in the bundle |
+| G.6 | Same protocol as the first run: 2 epochs frozen + 4 fine-tuning, same learning rates and augmentation, final epoch reported; the test part is evaluated once, after the last epoch (a unit test checks that the test loader is used exactly once) and nothing is selected on it | Comparability; no selection on the test part | Early stopping / best epoch on validation |
+| G.7 | One seed per backbone and split | Three seeds for both backbones on one split would take about 2.2 h of training (estimate from measured epoch times), over the owner's 2 h limit. Two splits at one seed: about 1.6 h including setup | 3 seeds on one split; 3 seeds MobileNetV2 + 1 seed B3 |
+| G.8 | Headline number = accuracy on the leaf-mapped subset of the leaf-grouped test part, reported next to overall test accuracy and the accuracy on files without a leaf id | Same-leaf leakage is 0.0% only for leaf-mapped files | Overall test accuracy as the headline |
+| G.9 | The old similarity-based split and all first-run results stay, described as a failed attempt | Honest history; the first run's numbers are still valid for what they measured | Delete or hide |
+| G.10 | Naming evidence is a committed script and JSON (`scripts/12_naming_check.py`, `results/extra_naming_check.json`) built from the GitHub API at run time; the API truncated the file listing, so its counts cover only the part returned | Evidence for G.1 should be reproducible | Describe it from memory |
+| G.11 | Two class/code aliases for the leaf map: `Apple___Black_rot` -> `Apple_Frogeye Spot` (class name), and, for `Tomato___Target_Spot`, file code `com.g_tgs_fl` -> `com.g_fl` (same numbers) | Found while checking the zero-coverage classes: all 2,484 stems of Apple black rot are in the map under the other class name, and Tomato target spot has 1,404 files and 1,404 map entries with identical numbers but a different code prefix. Coverage rose from 71.2% to 76.6% and the classes without any leaf id fell from 9 to 7. The alias can only add leaf links (less leakage), never remove any. If either is wrong, the cost is an unnecessary grouping, not a leak | Leave the two classes uncovered |
+
+Open doubts, stated in the README: one class has no UUID; ` copy` files have their own UUID (assumed to be the same photo, pixels not inspected); "different UUID means different photo" is not established; photo grouping does not remove same-leaf leakage; roughly 23% of the files have no leaf id (7 of 38 classes have none at all).

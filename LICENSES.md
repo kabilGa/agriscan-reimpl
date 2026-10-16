@@ -51,3 +51,11 @@ Because redistribution is not clearly permitted by either source, nothing that c
 ## This repo's own code
 
 Licence not chosen yet. A recommendation, with the reasoning and the AGPL-3.0 implications of the optional Ultralytics dependency, is in DECISIONS.md (section "Code licence recommendation"); the choice is the owner's.
+
+## The authors' leaf map (used for the leaf-grouped split)
+
+`leaf_grouping/leaf-map.json` from the original PlantVillage repository (file name to leaf id, about 40,000 entries) is used only to decide which photos belong to the same physical leaf. The repository states no licence (see above), so:
+
+- the file is **downloaded at run time** into the git-ignored `artifacts/` folder and is **never committed**;
+- its SHA-256 is recorded in `results/step8_grouped_splits.json` and `splits/split_hashes.json`, so a different version of the file is detected;
+- the committed split files (`splits/photo_split.csv.gz`, `splits/leaf_split.csv.gz`) contain only dataset file paths, labels, split names, group ids and a boolean `leaf_mapped`; they contain **no leaf ids** and none of the map's content.

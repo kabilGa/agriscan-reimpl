@@ -1,0 +1,150 @@
+{
+  "name": "step8_grouped_splits",
+  "date_utc": "2026-10-16T16:10:34+00:00",
+  "seed": 0,
+  "config": {
+    "input": "file list splits/clean_split.csv.gz",
+    "leaf_map": "artifacts/leaf-map.json",
+    "grouping": {
+      "photo": "uuid OR class+base name",
+      "leaf": "uuid OR class+base name OR authors' leaf id"
+    }
+  },
+  "env": {
+    "python": "3.14.7",
+    "torch": "2.14.1+cpu",
+    "torchvision": "0.29.1+cpu",
+    "numpy": "2.5.2",
+    "pillow": "12.3.0",
+    "ultralytics": "8.4.177",
+    "cuda": null,
+    "device": "cpu",
+    "git_commit": "ec791e4+dirty"
+  },
+  "metrics": {
+    "fracs_train_val_test": [
+      0.7,
+      0.15,
+      0.15
+    ],
+    "n_files": 87867,
+    "input": "file list splits/clean_split.csv.gz",
+    "hashes": {
+      "files": "8eea64914293f5bacc12f4e312e8def16b24a80929d468ce5ccdf9d105cc3339",
+      "leaf_map_sha256": "3b4b253683c6911744959a3870a92509b1faa1ee34e9f8585e21d0fe6337a25b",
+      "photo": "ee827148d524ed06839be5cfba0fc1f838ae95cc9b80a5556c72f87757f69a6a",
+      "leaf": "ad45585e8c1039e57c6924b3df24473ea8620a2b390bcaee55147cfe837bf184"
+    },
+    "leaf_map": {
+      "url": "https://raw.githubusercontent.com/spMohanty/PlantVillage-Dataset/master/leaf_grouping/leaf-map.json",
+      "sha256": "3b4b253683c6911744959a3870a92509b1faa1ee34e9f8585e21d0fe6337a25b",
+      "n_keys": 40328,
+      "downloaded_this_run": false,
+      "note": "downloaded at run time, never committed (the original repository states no licence)"
+    },
+    "leaf_coverage": {
+      "files_with_leaf_id": 67317,
+      "fraction": 0.7661238007443067,
+      "per_class_min_max": [
+        0.0,
+        1.0
+      ],
+      "classes_with_zero_coverage": [
+        "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+        "Corn_(maize)___Common_rust_",
+        "Corn_(maize)___Northern_Leaf_Blight",
+        "Corn_(maize)___healthy",
+        "Grape___healthy",
+        "Squash___Powdery_mildew",
+        "Tomato___Tomato_mosaic_virus"
+      ]
+    },
+    "naming": {
+      "files_without_uuid": 2384,
+      "classes_without_uuid": {
+        "Corn_(maize)___Common_rust_": 2384
+      },
+      "distinct_uuids": 44648,
+      "distinct_class_base_names": 45040,
+      "copy_named_files": 2921
+    },
+    "photo": {
+      "n": {
+        "train": 61409,
+        "val": 13230,
+        "test": 13228
+      },
+      "per_class_share_min_max": {
+        "train": [
+          0.6945454545454546,
+          0.7
+        ],
+        "val": [
+          0.15,
+          0.15272727272727274
+        ],
+        "test": [
+          0.15,
+          0.15272727272727274
+        ]
+      },
+      "n_groups": 45040,
+      "largest_group": 16,
+      "groups_over_100_images": 0,
+      "groups_straddling_parts": 0,
+      "uuids_straddling_parts": 0,
+      "class_base_names_straddling_parts": 0,
+      "leaf_ids_straddling_parts": 5626,
+      "same_leaf_leakage_of_mapped_files": {
+        "val": {
+          "n_with_leaf_id": 10171,
+          "share_whose_leaf_is_in_train": 0.9662766689607708
+        },
+        "test": {
+          "n_with_leaf_id": 10145,
+          "share_whose_leaf_is_in_train": 0.9658945293247906
+        }
+      },
+      "test_files_with_leaf_id": 10145
+    },
+    "leaf": {
+      "n": {
+        "train": 61012,
+        "val": 13414,
+        "test": 13441
+      },
+      "per_class_share_min_max": {
+        "train": [
+          0.6765498652291105,
+          0.6998050682261209
+        ],
+        "val": [
+          0.15,
+          0.16064638783269963
+        ],
+        "test": [
+          0.15009746588693956,
+          0.16981132075471697
+        ]
+      },
+      "n_groups": 17399,
+      "largest_group": 132,
+      "groups_over_100_images": 3,
+      "groups_straddling_parts": 0,
+      "uuids_straddling_parts": 0,
+      "class_base_names_straddling_parts": 0,
+      "leaf_ids_straddling_parts": 0,
+      "same_leaf_leakage_of_mapped_files": {
+        "val": {
+          "n_with_leaf_id": 10294,
+          "share_whose_leaf_is_in_train": 0.0
+        },
+        "test": {
+          "n_with_leaf_id": 10312,
+          "share_whose_leaf_is_in_train": 0.0
+        }
+      },
+      "test_files_with_leaf_id": 10312
+    }
+  }
+}

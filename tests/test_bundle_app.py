@@ -22,11 +22,14 @@ def test_bundle_has_code_only(tmp_path):
     for n in names:
         parts = Path(n).parts
         assert Path(n).name not in {"LEARNING_NOTES.md", "INTERVIEW_QA.md", "kaggle.json"}, n
-        assert not ({".git", ".venv", "artifacts", "results", "splits"} & set(parts)), n
+        assert not ({".git", ".venv", "artifacts", "results"} & set(parts)), n
+        assert "splits" not in parts or n == "splits/split_hashes.json", n              # the fingerprint file is the only split file
         assert Path(n).suffix not in {".pt", ".npz", ".gz", ".jpg", ".png", ".zip"}, n
     assert "commit" in json.loads(zipfile.ZipFile(out).read("BUNDLE_INFO.json"))
     jsons = [n for n in names if n.endswith(".json")]
-    assert set(jsons) <= {"BUNDLE_INFO.json", "splits/split_hashes.json"}, jsons       # no results, no leaf map, no split CSVs
+    assert set(jsons) == {"BUNDLE_INFO.json", "splits/split_hashes.json"}, jsons       # no results, no leaf map, no split CSVs
+    hashes = json.loads(zipfile.ZipFile(out).read("splits/split_hashes.json"))
+    assert set(hashes) >= {"files", "leaf_map_sha256", "photo", "leaf"} and "leaf_ids" not in str(hashes)
     assert "scripts/run_grouped.py" in names and "notebooks/kaggle_run_grouped.ipynb" in names
 
 

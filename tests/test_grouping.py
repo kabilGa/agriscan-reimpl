@@ -75,3 +75,12 @@ def test_three_way_split_respects_class_quotas():
         assert 10 <= (part == "val").sum() <= 20 and 10 <= (part == "test").sum() <= 20
     for g in np.unique(groups):
         assert len(set(out[groups == g])) == 1
+
+
+def test_documented_class_and_code_aliases():
+    from agriscan.grouping import leaf_id
+    m = {"rs_hl 5": ["Apple_Frogeye Spot:::3.0", "Soybean___healthy:::9.0"], "com.g_fl 0004": ["Tomato___Target_Spot:::2.0", "Tomato___Early_blight:::7.0"]}
+    assert leaf_id("rs_hl 5", "rs_hl 5", "Apple___Black_rot", m) == "Apple_Frogeye Spot:::3.0"          # class alias; other crop ignored
+    assert leaf_id("rs_hl 5", "rs_hl 5", "Apple___healthy", m) is None                                    # no alias for other classes
+    assert leaf_id("com.g_tgs_fl 0004", "com.g_tgs_fl 0004", "Tomato___Target_Spot", m) == "Tomato___Target_Spot:::2.0"   # code alias
+    assert leaf_id("com.g_tgs_fl 0004", "com.g_tgs_fl 0004", "Tomato___Early_blight", m) is None

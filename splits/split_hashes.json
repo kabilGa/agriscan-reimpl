@@ -1,0 +1,13 @@
+{
+  "files": "8eea64914293f5bacc12f4e312e8def16b24a80929d468ce5ccdf9d105cc3339",
+  "leaf_map_sha256": "3b4b253683c6911744959a3870a92509b1faa1ee34e9f8585e21d0fe6337a25b",
+  "photo": "ee827148d524ed06839be5cfba0fc1f838ae95cc9b80a5556c72f87757f69a6a",
+  "leaf": "ad45585e8c1039e57c6924b3df24473ea8620a2b390bcaee55147cfe837bf184",
+  "n_files": 87867,
+  "seed": 0,
+  "fracs": [
+    0.7,
+    0.15,
+    0.15
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "name": "extra_naming_check",
+  "date_utc": "2026-10-16T16:05:35+00:00",
+  "seed": 0,
+  "config": {
+    "csv": "splits/clean_split.csv.gz",
+    "api": "https://api.github.com/repos/spMohanty/PlantVillage-Dataset"
+  },
+  "env": {
+    "python": "3.14.7",
+    "torch": "2.14.1+cpu",
+    "torchvision": "0.29.1+cpu",
+    "numpy": "2.5.2",
+    "pillow": "12.3.0",
+    "ultralytics": "8.4.177",
+    "cuda": null,
+    "device": "cpu",
+    "git_commit": "ec791e4+dirty"
+  },
+  "metrics": {
+    "label": "EXTRA (naming evidence for the grouping key)",
+    "original_repo": {
+      "n_files": 50289,
+      "n_classes": 36,
+      "n_with_uuid_prefix": 49097,
+      "n_distinct_uuids": 49097,
+      "uuids_used_by_more_than_one_file": 0,
+      "files_without_uuid_by_class": {
+        "Corn_(maize)___Common_rust_": 1192
+      },
+      "files_with_augmentation_suffix": 0,
+      "copy_named_files": 1366,
+      "groups_with_a_copy_file": 607,
+      "of_which_with_more_than_one_uuid": 607,
+      "same_class_and_base_name_but_different_uuid_without_copy": 15,
+      "github_tree_truncated": true,
+      "note": "GitHub truncates very large trees: the counts cover the returned part only (see n_files / n_classes)"
+    },
+    "kaggle_copy": {
+      "n_files": 87867,
+      "files_without_uuid_by_class": {
+        "Corn_(maize)___Common_rust_": 2384
+      },
+      "distinct_uuids": 44648,
+      "distinct_class_base_names": 45040,
+      "uuids_with_more_than_one_label": 0,
+      "uuids_with_more_than_one_base_name": 0,
+      "union_groups": 45040,
+      "union_largest_group": 16,
+      "union_groups_over_40_images": 0,
+      "original_split_val_images_with_a_group_member_in_train": {
+        "uuid_only (files without uuid kept alone)": 0.630719326200774,
+        "class_and_base_name": 0.6588322330981107,
+        "union_of_both": 0.6588322330981107
+      }
+    }
+  }
+}

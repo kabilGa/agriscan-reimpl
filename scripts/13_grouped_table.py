@@ -30,7 +30,8 @@ def run(arch, split, seed=0):
 pct = lambda x: "-" if x is None else f"{100 * x:.1f}%"  # noqa: E731
 f4 = lambda x: "-" if x is None else f"{x:.4f}"  # noqa: E731
 pp = lambda x: f"{100 * x:+.2f} pp"  # noqa: E731
-sp, nm, xc = load("step8_grouped_splits.json"), load("extra_naming_check.json"), load("extra_filename_crosscheck.json")
+sp, nm, xc_doc = load("step8_grouped_splits.json"), load("extra_naming_check.json"), load("extra_filename_crosscheck.json")
+xc = xc_doc["metrics"] if xc_doc else None
 L = []
 
 # ---- the failed first attempt -------------------------------------------------------------------------------
@@ -63,10 +64,13 @@ if sp:
     row("test images with a leaf id", lambda c: str(c["test_files_with_leaf_id"]))
     for part in ("val", "test"):
         row(f"{part} images (with a leaf id) whose leaf is also in train", lambda c, part=part: f"{pct(c['same_leaf_leakage_of_mapped_files'][part]['share_whose_leaf_is_in_train'])} of {c['same_leaf_leakage_of_mapped_files'][part]['n_with_leaf_id']}")
+    zero = cov["classes_with_zero_coverage"]
+    ncls = (load("step1_inspect.json") or {"metrics": {"n_classes": None}})["metrics"]["n_classes"]
     L += ["", f"**Leaf-map coverage: {pct(cov['fraction'])} of the files** ({cov['files_with_leaf_id']} of {m['n_files']}) have a leaf id from the authors' map; "
           f"the other {pct(1 - cov['fraction'])} are grouped by photo only, so same-leaf leakage can remain for them even in the leaf split. "
-          f"Per-class coverage ranges {pct(cov['per_class_min_max'][0])}-{pct(cov['per_class_min_max'][1])}; classes with zero coverage: "
-          f"{', '.join(cov['classes_with_zero_coverage']) or 'none'}. The map is downloaded at run time (sha256 `{m['leaf_map']['sha256'][:12]}...`) and is not committed.",
+          f"Per-class coverage ranges {pct(cov['per_class_min_max'][0])}-{pct(cov['per_class_min_max'][1])}. "
+          f"**{len(zero)} of {ncls} classes have no leaf id at all** ({', '.join(zero) or 'none'}), so the leaf-mapped subset, and therefore the headline number, "
+          f"covers only the other {ncls - len(zero) if ncls else '?'} classes. The map is downloaded at run time (sha256 `{m['leaf_map']['sha256'][:12]}...`) and is not committed.",
           f"Files without a UUID: {nmg['files_without_uuid']} ({', '.join(f'{k}: {v}' for k, v in nmg['classes_without_uuid'].items()) or 'none'}); "
           f"files named with ' copy': {nmg['copy_named_files']}.", ""]
 
@@ -111,9 +115,12 @@ for arch in ("mobilenet_v2", "efficientnet_b3"):
         L.append(f"| {arch} | {label} | " + " | ".join(cells) + " |")
 L += [""]
 if head:
+    nz = len(sp["metrics"]["leaf_coverage"]["classes_with_zero_coverage"]) if sp else None
+    ncl = (load("step1_inspect.json") or {"metrics": {"n_classes": None}})["metrics"]["n_classes"]
     L += ["**Headline (leaf-mapped test accuracy, leaf-grouped split, one seed): " +
           "; ".join(f"{a} {pct(v)} (n={n})" for a, (v, n) in head.items()) + ".** It describes lab-condition images of leaves the model has not seen "
-          "in training, for the part of the data covered by the authors' leaf map; it says nothing about field photos.", ""]
+          f"in training, for the part of the data covered by the authors' leaf map, which covers only {ncl - nz if (ncl and nz is not None) else '?'} of {ncl} classes; "
+          "it says nothing about field photos or about the classes without a leaf id.", ""]
 else:
     L += ["The grouped runs have not been executed yet, so there is no headline number.", ""]
 
