@@ -1,4 +1,4 @@
-﻿"""README claims that depend on measured numbers must agree with the JSON files, and its generated blocks must be current."""
+"""README claims that depend on measured numbers must agree with the JSON files, and its generated blocks must be current."""
 import json
 import subprocess
 import sys

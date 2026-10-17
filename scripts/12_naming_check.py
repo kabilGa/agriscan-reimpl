@@ -1,4 +1,4 @@
-﻿"""EXTRA: evidence for the grouping key. Checks the naming of the ORIGINAL PlantVillage repository (via the GitHub API at
+"""EXTRA: evidence for the grouping key. Checks the naming of the ORIGINAL PlantVillage repository (via the GitHub API at
 run time) and of the Kaggle copy (from splits/clean_split.csv.gz), and compares grouping keys on the original split.
 """
 import argparse

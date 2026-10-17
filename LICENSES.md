@@ -50,7 +50,7 @@ Because redistribution is not clearly permitted by either source, nothing that c
 
 ## This repo's own code
 
-Licence not chosen yet. A recommendation, with the reasoning and the AGPL-3.0 implications of the optional Ultralytics dependency, is in DECISIONS.md (section "Code licence recommendation"); the choice is the owner's.
+**MIT** (see `LICENSE`; Copyright (c) 2026 Kabil Gannouni), chosen by the owner on 2026-10-17. It covers this repository's code only: not the dataset, not the authors' leaf map, not any model weights, and not the optional Ultralytics package (AGPL-3.0), whose terms apply to anyone who distributes or serves a combination that includes it. Reasoning: DECISIONS.md, section "Code licence".
 
 ## The authors' leaf map (used for the leaf-grouped split)
 
