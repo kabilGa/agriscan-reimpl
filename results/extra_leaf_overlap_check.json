@@ -1,0 +1,83 @@
+{
+  "name": "extra_leaf_overlap_check",
+  "date_utc": "2026-10-17T10:36:32+00:00",
+  "seed": 0,
+  "config": {
+    "splits_dir": "splits"
+  },
+  "env": {
+    "python": "3.14.7",
+    "torch": "2.14.1+cpu",
+    "torchvision": "0.29.1+cpu",
+    "numpy": "2.5.2",
+    "pillow": "12.3.0",
+    "ultralytics": "8.4.177",
+    "cuda": null,
+    "device": "cpu",
+    "git_commit": "ecdf910"
+  },
+  "metrics": {
+    "label": "EXTRA (independent recomputation of same-leaf overlap)",
+    "leaf_map_sha256": "3b4b253683c6911744959a3870a92509b1faa1ee34e9f8585e21d0fe6337a25b",
+    "photo": {
+      "val": {
+        "n_leaf_mapped": 10171,
+        "n_with_same_leaf_in_train": 9828,
+        "share_with_same_leaf_in_train": 0.9662766689607708,
+        "same_leaf_train_images_per_image": {
+          "mean": 10.500934028119163,
+          "median": 6.0,
+          "min": 0,
+          "max": 96
+        },
+        "distinct_leaves": 3819,
+        "distinct_leaves_also_in_train": 3649,
+        "agrees_with_split_build": true
+      },
+      "test": {
+        "n_leaf_mapped": 10145,
+        "n_with_same_leaf_in_train": 9799,
+        "share_with_same_leaf_in_train": 0.9658945293247906,
+        "same_leaf_train_images_per_image": {
+          "mean": 10.468112370625924,
+          "median": 6.0,
+          "min": 0,
+          "max": 96
+        },
+        "distinct_leaves": 3859,
+        "distinct_leaves_also_in_train": 3677,
+        "agrees_with_split_build": true
+      }
+    },
+    "leaf": {
+      "val": {
+        "n_leaf_mapped": 10294,
+        "n_with_same_leaf_in_train": 0,
+        "share_with_same_leaf_in_train": 0.0,
+        "same_leaf_train_images_per_image": {
+          "mean": 0.0,
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "distinct_leaves": 1195,
+        "distinct_leaves_also_in_train": 0,
+        "agrees_with_split_build": true
+      },
+      "test": {
+        "n_leaf_mapped": 10312,
+        "n_with_same_leaf_in_train": 0,
+        "share_with_same_leaf_in_train": 0.0,
+        "same_leaf_train_images_per_image": {
+          "mean": 0.0,
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "distinct_leaves": 1149,
+        "distinct_leaves_also_in_train": 0,
+        "agrees_with_split_build": true
+      }
+    }
+  }
+}
