@@ -93,7 +93,10 @@ if nm:
 # ---- results ------------------------------------------------------------------------------------------------
 L += ["### Results by protocol (one seed per grouped run)", "",
       "Final-epoch metrics. Validation accuracy for 'clean' is the mean of 3 seeds; every other row is one run. "
-      "**Headline number: the leaf-mapped test accuracy on the leaf-grouped split** (files covered by the authors' leaf map; same-leaf leakage is 0.0% there).", "",
+      "**Every photo-grouped and leaf-grouped value is a single seed; no seed spread was measured.** "
+      "**Headline number: the leaf-mapped test accuracy on the leaf-grouped split** (files covered by the authors' leaf map, 31 of 38 classes; same-leaf leakage is 0.0% there). "
+      "The photo-grouped and leaf-grouped splits have different training sets and different test sets (the number of leaf-mapped test images is in parentheses), "
+      "so differences between those rows are **not** like-for-like estimates of a leakage effect.", "",
       "| backbone | protocol | val acc | test acc (all) | test acc, leaf-mapped files (n) | test acc, files without leaf id (n) |", "|---|---|---|---|---|---|"]
 head = {}
 for arch in ("mobilenet_v2", "efficientnet_b3"):
@@ -117,8 +120,8 @@ L += [""]
 if head:
     nz = len(sp["metrics"]["leaf_coverage"]["classes_with_zero_coverage"]) if sp else None
     ncl = (load("step1_inspect.json") or {"metrics": {"n_classes": None}})["metrics"]["n_classes"]
-    L += ["**Headline (leaf-mapped test accuracy, leaf-grouped split, one seed): " +
-          "; ".join(f"{a} {pct(v)} (n={n})" for a, (v, n) in head.items()) + ".** It describes lab-condition images of leaves the model has not seen "
+    L += ["**Headline (leaf-mapped test accuracy on the leaf-grouped split): " +
+          "; ".join(f"{a} {pct(v)} (n={n}; single seed, no seed spread measured)" for a, (v, n) in head.items()) + ".** It describes lab-condition images of leaves the model has not seen "
           f"in training, for the part of the data covered by the authors' leaf map, which covers only {ncl - nz if (ncl and nz is not None) else '?'} of {ncl} classes; "
           "it says nothing about field photos or about the classes without a leaf id.", ""]
 else:
@@ -129,12 +132,26 @@ obs = []
 for arch in ("mobilenet_v2", "efficientnet_b3"):
     o, p, lf = run(arch, "original"), run(arch, "photo"), run(arch, "leaf")
     if o and p:
-        obs.append(f"{arch}: original-split val {f4(o['metrics']['val_acc'])} -> photo-grouped test {f4(p['metrics']['test']['acc'])} "
-                   f"({pp(p['metrics']['test']['acc'] - o['metrics']['val_acc'])}; different images and a held-out part, one seed).")
+        obs.append(f"{arch}: original-split validation {f4(o['metrics']['val_acc'])} vs photo-grouped test {f4(p['metrics']['test']['acc'])} "
+                   f"({pp(p['metrics']['test']['acc'] - o['metrics']['val_acc'])}); different images and a held-out part, single seed, no seed spread measured.")
     if p and lf:
-        pm, lm = p["metrics"]["test"]["leaf_mapped"]["acc"], lf["metrics"]["test"]["leaf_mapped"]["acc"]
-        obs.append(f"{arch}: leaf-mapped test accuracy {f4(pm)} on the photo-grouped split vs {f4(lm)} on the leaf-grouped split ({pp(lm - pm)}); "
-                   f"on the photo-grouped split these images mostly share a leaf with training images, on the leaf-grouped split none do.")
+        pt, lt = p["metrics"]["test"]["leaf_mapped"], lf["metrics"]["test"]["leaf_mapped"]
+        obs.append(f"{arch}: leaf-mapped test accuracy {f4(pt['acc'])} on the photo-grouped split (n={pt['n']}) and {f4(lt['acc'])} on the leaf-grouped split "
+                   f"(n={lt['n']}), a difference of {pp(lt['acc'] - pt['acc'])}. The two splits have different test sets and different training sets, "
+                   f"so this difference is not a like-for-like estimate of a leakage effect; single seed, no seed spread measured.")
+if sp:
+    lk = {s: sp["metrics"][s]["same_leaf_leakage_of_mapped_files"]["test"] for s in ("photo", "leaf")}
+    obs.append("Same-leaf overlap (measured from the split files and the leaf map): in the photo-grouped split "
+               f"{pct(lk['photo']['share_whose_leaf_is_in_train'])} of its {lk['photo']['n_with_leaf_id']} leaf-mapped test images "
+               f"({round(lk['photo']['share_whose_leaf_is_in_train'] * lk['photo']['n_with_leaf_id'])}) have at least one image of the same leaf in their training split; "
+               f"in the leaf-grouped split {pct(lk['leaf']['share_whose_leaf_is_in_train'])} of its {lk['leaf']['n_with_leaf_id']} do.")
+    ov = load("extra_leaf_overlap_check.json")
+    if ov:
+        o = ov["metrics"]
+        per = o["photo"]["test"]["same_leaf_train_images_per_image"]
+        agree = all(o[s][p].get("agrees_with_split_build") for s in ("photo", "leaf") for p in ("val", "test"))
+        obs.append(f"An independent recomputation (`results/extra_leaf_overlap_check.json`) finds the same shares (agrees with the split build: {agree}); each leaf-mapped photo-grouped "
+                   f"test image has on average {per['mean']:.1f} training images of its leaf (median {per['median']:.0f}).")
 L += ["### Observations (generated from the numbers above)", ""] + ([f"- {x}" for x in obs] if obs else ["- No grouped runs yet."]) + [""]
 
 text = "\n".join(L)

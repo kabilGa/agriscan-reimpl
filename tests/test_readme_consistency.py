@@ -36,3 +36,14 @@ def test_headline_rule_and_doubts_are_stated():
     for needle in ("headline number is the accuracy on the leaf-mapped subset", "One whole class has no UUID", "` copy` files carry their own UUID",
                    "does **not** remove same-leaf or same-plant leakage", "lab-condition numbers", "never committed"):
         assert needle in README, needle
+
+
+def test_grouped_headline_wording_and_overlap_numbers():
+    grouped = README.split("<!-- GROUPED:START -->")[1].split("<!-- GROUPED:END -->")[0]
+    headline = next(line for line in grouped.splitlines() if line.startswith("**Headline"))
+    assert headline.count("single seed, no seed spread measured") == 2 and "31 of 38 classes" in headline        # one per backbone
+    assert "not** like-for-like" in grouped and "not a like-for-like estimate of a leakage effect" in grouped
+    assert "same leaf-mapped test images" not in README and "mostly share" not in README.lower()
+    m = json.loads((ROOT / "results" / "step8_grouped_splits.json").read_text())["metrics"]["photo"]["same_leaf_leakage_of_mapped_files"]["test"]
+    cnt = round(m["share_whose_leaf_is_in_train"] * m["n_with_leaf_id"])
+    assert f"{100 * m['share_whose_leaf_is_in_train']:.1f}% of the leaf-mapped test images ({cnt:,} of {m['n_with_leaf_id']:,})" in README

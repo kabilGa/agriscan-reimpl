@@ -1,9 +1,9 @@
 {
   "name": "step8_grouped_splits",
-  "date_utc": "2026-10-16T16:17:57+00:00",
+  "date_utc": "2026-10-16T17:00:24+00:00",
   "seed": 0,
   "config": {
-    "input": "file list splits/clean_split.csv.gz",
+    "input": "dataset folder /kaggle/input/datasets",
     "leaf_map": "artifacts/leaf-map.json",
     "grouping": {
       "photo": "uuid OR class+base name",
@@ -11,15 +11,15 @@
     }
   },
   "env": {
-    "python": "3.14.7",
-    "torch": "2.14.1+cpu",
-    "torchvision": "0.29.1+cpu",
-    "numpy": "2.5.2",
+    "python": "3.13.15",
+    "torch": "2.11.0+cu128",
+    "torchvision": "0.26.0+cu128",
+    "numpy": "2.1.3",
     "pillow": "12.3.0",
-    "ultralytics": "8.4.177",
-    "cuda": null,
-    "device": "cpu",
-    "git_commit": "1f763f1"
+    "ultralytics": "8.4.178",
+    "cuda": "12.8",
+    "device": "Tesla T4",
+    "git_commit": "023024c"
   },
   "metrics": {
     "fracs_train_val_test": [
@@ -28,7 +28,7 @@
       0.15
     ],
     "n_files": 87867,
-    "input": "file list splits/clean_split.csv.gz",
+    "input": "dataset folder /kaggle/input/datasets",
     "hashes": {
       "files": "8eea64914293f5bacc12f4e312e8def16b24a80929d468ce5ccdf9d105cc3339",
       "leaf_map_sha256": "3b4b253683c6911744959a3870a92509b1faa1ee34e9f8585e21d0fe6337a25b",
@@ -39,7 +39,7 @@
       "url": "https://raw.githubusercontent.com/spMohanty/PlantVillage-Dataset/master/leaf_grouping/leaf-map.json",
       "sha256": "3b4b253683c6911744959a3870a92509b1faa1ee34e9f8585e21d0fe6337a25b",
       "n_keys": 40328,
-      "downloaded_this_run": false,
+      "downloaded_this_run": true,
       "note": "downloaded at run time, never committed (the original repository states no licence)"
     },
     "leaf_coverage": {

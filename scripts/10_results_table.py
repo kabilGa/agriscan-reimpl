@@ -20,7 +20,8 @@ args = ap.parse_args()
 
 R = Path(args.results)
 load = lambda p: json.loads((R / p).read_text())  # noqa: E731
-runs = [json.loads(p.read_text()) for p in sorted((R / "runs").glob("*.json"))]
+# First run only (original and similarity-based 'clean' splits); the grouped-protocol runs are tabulated by scripts/13_grouped_table.py.
+runs = [r for r in (json.loads(p.read_text()) for p in sorted((R / "runs").glob("*.json"))) if r["config"]["split"] in ("original", "clean")]
 status, ins = load("run_status.json"), load("step1_inspect.json")["metrics"]
 leak, split = load("step1_leakage.json")["metrics"], load("step1_clean_split.json")["metrics"]
 yolo, bg = load("step5_yolo_eval.json")["metrics"], load("extra_background_check.json")["metrics"]

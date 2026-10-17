@@ -39,3 +39,10 @@ Exact steps. Nothing here needs a Kaggle token or password.
 10. Tell me "grouped results are in".
 
 Order inside the run: split build (about a minute), then the leaf split (MobileNetV2, then EfficientNet-B3), then the photo split (same order), so the primary results exist first. A 2.5 h budget stops stages that would not fit; skips are recorded in `results/run_grouped_status.json`. If the session dies, re-run all: finished stages are skipped.
+
+## Notes from the second run (2026-10-16)
+
+- **Code under test:** commit `023024c`, recorded as `git_commit` in every run JSON (none `+dirty`). Tesla T4, 5 of 5 stages done, 6,144 s for the whole notebook including setup and self-test (stage minutes: split build 3.4, MobileNetV2 18.0 / 15.8, EfficientNet-B3 27.6 / 27.6); the estimate was about 1.6 h.
+- **Hash check:** all four fingerprints (file list, leaf map, photo split, leaf split) matched `splits/split_hashes.json`.
+- **Split files:** the files in the results zip are the ones the models trained on. They differ from the earlier locally built files only in line endings (the local ones had CRLF); the committed files are now the Kaggle ones.
+- **Unzip:** the zip unpacked into the repo root without a subfolder; the zip itself is kept in `artifacts/` (git-ignored).

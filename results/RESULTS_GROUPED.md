@@ -30,21 +30,25 @@ Kaggle copy: 2384 files have no UUID (Corn_(maize)___Common_rust_: 2384); 0 UUID
 
 ### Results by protocol (one seed per grouped run)
 
-Final-epoch metrics. Validation accuracy for 'clean' is the mean of 3 seeds; every other row is one run. **Headline number: the leaf-mapped test accuracy on the leaf-grouped split** (files covered by the authors' leaf map; same-leaf leakage is 0.0% there).
+Final-epoch metrics. Validation accuracy for 'clean' is the mean of 3 seeds; every other row is one run. **Every photo-grouped and leaf-grouped value is a single seed; no seed spread was measured.** **Headline number: the leaf-mapped test accuracy on the leaf-grouped split** (files covered by the authors' leaf map, 31 of 38 classes; same-leaf leakage is 0.0% there). The photo-grouped and leaf-grouped splits have different training sets and different test sets (the number of leaf-mapped test images is in parentheses), so differences between those rows are **not** like-for-like estimates of a leakage effect.
 
 | backbone | protocol | val acc | test acc (all) | test acc, leaf-mapped files (n) | test acc, files without leaf id (n) |
 |---|---|---|---|---|---|
 | mobilenet_v2 | original split (dataset's own) | 0.9917 | - | - | - |
 | mobilenet_v2 | similarity 'clean' split (failed attempt, 3 seeds) | 0.9909 | - | - | - |
-| mobilenet_v2 | photo-grouped | not run yet | not run yet | not run yet | not run yet |
-| mobilenet_v2 | leaf+photo-grouped (primary) | not run yet | not run yet | not run yet | not run yet |
+| mobilenet_v2 | photo-grouped | 0.9891 | 0.9892 | 0.9893 (10145) | 0.9890 (3083) |
+| mobilenet_v2 | leaf+photo-grouped (primary) | 0.9802 | 0.9821 | 0.9817 (10312) | 0.9834 (3129) |
 | efficientnet_b3 | original split (dataset's own) | 0.9970 | - | - | - |
 | efficientnet_b3 | similarity 'clean' split (failed attempt, 3 seeds) | 0.9976 | - | - | - |
-| efficientnet_b3 | photo-grouped | not run yet | not run yet | not run yet | not run yet |
-| efficientnet_b3 | leaf+photo-grouped (primary) | not run yet | not run yet | not run yet | not run yet |
+| efficientnet_b3 | photo-grouped | 0.9960 | 0.9964 | 0.9975 (10145) | 0.9925 (3083) |
+| efficientnet_b3 | leaf+photo-grouped (primary) | 0.9918 | 0.9912 | 0.9917 (10312) | 0.9898 (3129) |
 
-The grouped runs have not been executed yet, so there is no headline number.
+**Headline (leaf-mapped test accuracy on the leaf-grouped split): mobilenet_v2 98.2% (n=10312; single seed, no seed spread measured); efficientnet_b3 99.2% (n=10312; single seed, no seed spread measured).** It describes lab-condition images of leaves the model has not seen in training, for the part of the data covered by the authors' leaf map, which covers only 31 of 38 classes; it says nothing about field photos or about the classes without a leaf id.
 
 ### Observations (generated from the numbers above)
 
-- No grouped runs yet.
+- mobilenet_v2: original-split validation 0.9917 vs photo-grouped test 0.9892 (-0.26 pp); different images and a held-out part, single seed, no seed spread measured.
+- mobilenet_v2: leaf-mapped test accuracy 0.9893 on the photo-grouped split (n=10145) and 0.9817 on the leaf-grouped split (n=10312), a difference of -0.76 pp. The two splits have different test sets and different training sets, so this difference is not a like-for-like estimate of a leakage effect; single seed, no seed spread measured.
+- efficientnet_b3: original-split validation 0.9970 vs photo-grouped test 0.9964 (-0.06 pp); different images and a held-out part, single seed, no seed spread measured.
+- efficientnet_b3: leaf-mapped test accuracy 0.9975 on the photo-grouped split (n=10145) and 0.9917 on the leaf-grouped split (n=10312), a difference of -0.59 pp. The two splits have different test sets and different training sets, so this difference is not a like-for-like estimate of a leakage effect; single seed, no seed spread measured.
+- Same-leaf overlap (measured from the split files and the leaf map): in the photo-grouped split 96.6% of its 10145 leaf-mapped test images (9799) have at least one image of the same leaf in their training split; in the leaf-grouped split 0.0% of its 10312 do.
